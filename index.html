@@ -159,7 +159,12 @@ main[data-tab="best"] > section[data-tab="best"] { scroll-margin-top: 72px; }
 .bites details > summary { cursor: pointer; color: var(--muted); }
 #plan.list-on .bites { grid-template-columns: 1fr; }
 #quest-list .bites { margin-top: 8px; grid-template-columns: 1fr; }   /* one column, like the game's quest list */
-#quest-list .qfold { cursor: pointer; }                                  /* the title folds the entry */
+#quest-list .qfold { cursor: pointer; }   /* the title folds the entry */
+.qcols { display: flex; flex-wrap: wrap; gap: 4px 48px; margin: 4px 0; }
+.qcols > div { flex: 0 1 280px; min-width: min(100%, 200px); }
+.qcols ul { margin: 1px 0 0; padding-left: 18px; }
+.qcols li { margin: 1px 0; }
+.qcols .dim { opacity: .75; }
 #bites { margin-top: 12px; }   /* room under the view buttons */
 [data-detail][aria-pressed="true"] { background: var(--stone); border-color: var(--stone); color: var(--surface); }
 [data-view][aria-pressed="true"] { background: var(--stone); border-color: var(--stone); color: var(--surface); }
@@ -4202,11 +4207,18 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     const shown = list.slice(0, 3).map(s => s.used >= s.have ? `all of your ${esc(s.item)}` : `${fmt(Math.round(s.used))} of your ${fmt(s.have)} ${esc(s.item)} (${Math.round(s.share * 100)}%)`);
     return shown.join(", ") + (list.length > 3 ? ` and ${list.length - 3} more` : "");
   };
+  // The same as one line per item, for the Uses column (biggest share of what you hold first)
+  const stockItems = st => st.filter(s => s.share >= 0.01).sort((a, b) => b.share - a.share)
+    .map(s => s.used >= s.have ? `all your ${fmt(s.have)} ${esc(s.item)}` : `${fmt(Math.round(s.used))} ${esc(s.item)} <span class="dim">of ${fmt(s.have)} (${Math.round(s.share * 100)}%)</span>`);
   // Condensed rewards: the items, with only Tower items marked
-  const rewardShort = (data, p) => [...data.get.map(([item, qty]) => {
+  const rewardItems = (data, p) => [...data.get.map(([item, qty]) => {
     const tower = O && (O.towerUse[item] || []).some(u => (p.items[item] || 0) < (u.tier === "mm" ? 1e6 : 1e5));
     return `${short(qty)} ${esc(item)}${tower ? towerTag(item, p.items[item]) : ""}`;
-  }), data.rSilver ? `${short(data.rSilver)} silver` : "", data.rGold ? `${short(data.rGold)} gold` : ""].filter(Boolean).join(", ");
+  }), data.rSilver ? `${short(data.rSilver)} silver` : "", data.rGold ? `${short(data.rGold)} gold` : ""].filter(Boolean);
+  const rewardShort = (data, p) => rewardItems(data, p).join(", ");
+  // Uses, Reward and Next lists side by side, stacked when the entry is narrow
+  const qCols = (uses, reward, next = []) => `<div class="qcols small muted">${[["Uses", uses], ["Reward", reward], ["Next", next]].filter(([, l]) => l.length)
+    .map(([h, l]) => `<div><b>${h}</b><ul>${l.map(x => `<li>${x}</li>`).join("")}</ul></div>`).join("")}</div>`;
   // Reward tags: things that help the plan above
   function rewardText(data, p) {
     const out = data.get.map(([item, qty]) => {
@@ -4315,10 +4327,9 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       const head = (shut, fold = true) => `<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><strong${fold ? ` class="qfold" data-qfold="${esc(qkey(q))}" role="button" tabindex="0" aria-expanded="${!shut}" title="${shut ? "Show" : "Fold"} this quest"><span class="muted small" aria-hidden="true">${shut ? "▸" : "▾"}</span> ` : ">"}${esc(q.name)}${tag}</strong>${btn}</div>`;
       const condensed = `
         ${shortVerdict ? `<span class="small muted" style="display:block;margin:2px 0"><span class="tag${eff >= 0.5 || ready ? " ok" : ""}">${shortVerdict}</span></span>` : ""}
-        ${ready ? `<span class="small"><b class="ok">Ready to turn in</b>${S.inventory ? (st ? `: uses ${st}` : "") : " (paste My Inventory to check)"}</span>`
-          : `<ul class="bite-parts small">${questTodo(n).map(x => `<li>${x}</li>`).join("")}</ul>${st ? `<span class="small muted" style="display:block">Also uses ${st}</span>` : ""}`}
-        <span class="small muted" style="display:block">Reward: ${rewardShort(data, p)}</span>
-        ${nextNames.length ? `<span class="small muted" style="display:block">Next: ${nextNames[0]}</span>` : ""}`;
+        ${ready ? `<span class="small"><b class="ok">Ready to turn in</b>${S.inventory ? "" : " (paste My Inventory to check)"}</span>`
+          : `<ul class="bite-parts small">${questTodo(n).map(x => `<li>${x}</li>`).join("")}</ul>`}
+        ${qCols(stockItems(n.stock), rewardItems(data, p), nextNames.slice(0, 1))}`;
       const xpQ = xpList([
         ["Why", `${verdict ? verdict + " " : ""}${rewardText(data, p)}${val.special.length ? ` <span class="muted">(can't value: ${val.special.slice(0, 3).map(esc).join(", ")}${val.special.length > 3 ? "…" : ""})</span>` : ""}`],
         ["Craft first", ready ? null : craftOrder(n.missing).filter(c => c.first).map(c => `~${short(c.qty)} ${esc(c.item)}`).join(", ") || null],
