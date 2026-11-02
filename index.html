@@ -269,6 +269,8 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 #app-shade { position: fixed; inset: 0; z-index: 39; background: rgba(0,0,0,.35); }
 #pets-dlg { width: min(460px, calc(100% - 32px)); max-height: calc(100% - 32px); border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: inherit; padding: 16px; }
 #pets-dlg::backdrop { background: rgba(0, 0, 0, .45); }
+#debug-dlg { width: min(460px, calc(100% - 32px)); max-height: calc(100% - 32px); border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: inherit; padding: 16px; }
+#debug-dlg::backdrop { background: rgba(0, 0, 0, .45); }
 #pets-dlg input { width: 4.5em; }
 #app-settings h3 { margin: 18px 0 6px; font-size: 1.05rem; }
 #app-settings .seg { display: flex; flex-wrap: wrap; gap: 4px; }
@@ -567,6 +569,12 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       <div class="table-wrap"><table id="pets-tbl"></table></div>
       <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="pets-reset">Use my pastes for all</button> <button type="button" id="pets-close">Done</button></p>
     </dialog>
+    <dialog id="debug-dlg" aria-labelledby="h-debug-dlg">
+      <h3 id="h-debug-dlg" style="margin-top:0">Not in the planner's data</h3>
+      <p class="small muted" style="margin:0 0 8px">New names from your pastes (each is shown once). Usually new event items or quests: the data needs a refresh.</p>
+      <div id="debug-list"></div>
+      <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
+    </dialog>
     <details id="d-places">
       <summary>Places I can use</summary>
       <p class="small muted">Places you can use; ticked automatically from your pastes. <span class="tip" data-tip="A place counts as open once you've gathered at least half of the things found only there. Change any you like.&#10;Event places (like Apple Bobbing) start unticked: tick one while its event is on." aria-label="A place counts as open once you've gathered at least half of the things found only there. Change any you like. Event places (like Apple Bobbing) start unticked: tick one while its event is on." tabindex="0">ⓘ</span></p>
@@ -701,6 +709,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       <button type="button" data-layout="list" title="One column.">List</button>
     </div>
     <label class="small" style="display:block;margin:10px 0 0"><input type="checkbox" id="truffle-bar-on"> Truffle hold/sell line at the top of every tab</label>
+    <label class="small" style="display:block;margin:6px 0 0"><input type="checkbox" id="debug-on"> Debug</label>
     <h3>Best use order</h3>
     <div id="best-order"></div>
     <h3>Data</h3>
@@ -1091,7 +1100,34 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     if (ok) { pasteDone(); $("paste-clear").hidden = true; }
     save();
     render();
+    debugCheck(kind);
   });
+  // ---------- Debug: names from pastes the planner's data doesn't know ----------
+  // Checks the whole saved state after each paste and shows only names not shown before (U.debugSeen)
+  function debugUnknown(kind) {
+    const out = { "Pages": kind ? [] : ["A paste that isn't a page this planner reads"] };
+    const add = (group, names) => { out[group] = [...new Set([...(out[group] || []), ...names])]; };
+    const inv = Object.keys((S.inventory && S.inventory.items) || {}), mast = Object.keys((S.mastery && S.mastery.items) || {});
+    add("Items", [...inv, ...mast, ...((S.craftworks && S.craftworks.items) || []).map(x => x.name)].filter(n => !(n in ITEMS)));
+    add("Quests", (S.quests || []).filter(q => q.section !== "personal" && !QUESTS.quests[q.name]).map(q => q.name));
+    add("Pets", Object.values((S.pets && S.pets.items) || {}).flatMap(v => Object.keys(v.from || {})).filter(p => !window.PETS.ITEMS[p]));
+    return out;
+  }
+  function debugCheck(kind) {
+    if (!U.debug) return;
+    const seen = new Set(U.debugSeen || []), found = debugUnknown(kind), fresh = {};
+    for (const [g, names] of Object.entries(found)) {
+      const n = names.filter(x => g === "Pages" || !seen.has(g + ":" + x));
+      if (n.length) fresh[g] = n;
+    }
+    if (!Object.keys(fresh).length) return;
+    U.debugSeen = [...seen, ...Object.entries(fresh).filter(([g]) => g !== "Pages").flatMap(([g, n]) => n.map(x => g + ":" + x))]; saveU();
+    $("debug-list").innerHTML = Object.entries(fresh).map(([g, n]) => `<p class="small" style="margin:6px 0 2px"><b>${esc(g)}</b></p><ul class="small" style="margin:0;padding-left:18px">${n.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`).join("");
+    $("debug-dlg").dataset.text = Object.entries(fresh).map(([g, n]) => g + ":\n" + n.map(x => "- " + x).join("\n")).join("\n\n");
+    if (!$("debug-dlg").open) $("debug-dlg").showModal();
+  }
+  $("debug-close").addEventListener("click", () => $("debug-dlg").close());
+  $("debug-copy").addEventListener("click", () => { navigator.clipboard && navigator.clipboard.writeText($("debug-dlg").dataset.text || "").then(() => { $("debug-copy").textContent = "Copied"; setTimeout(() => { $("debug-copy").textContent = "Copy"; }, 1500); }); });
   // ---------- Pet levels ----------
   // The My Pets list is always in this order and never says which pet is which (knowledge/mechanics/pets.md): a full list
   // maps one to one; a shorter one maps onto the types that brought items (All Pet Items). S.petLevels holds your fixes.
@@ -4660,7 +4696,9 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     document.querySelectorAll("[data-detail]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.detail === U.detail)));
     document.querySelectorAll("[data-layout]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.layout === U.layout)));
     $("truffle-bar-on").checked = U.truffleBar !== false;
+    $("debug-on").checked = !!U.debug;
   }
+  $("debug-on").addEventListener("change", e => { U.debug = e.target.checked; if (U.debug) U.debugSeen = []; saveU(); });
   $("truffle-bar-on").addEventListener("change", e => { U.truffleBar = e.target.checked; U.truffleHideUntil = 0; saveU(); renderTruffleStrip(); });
   let gearFrom = null;
   const openApp = on => {
