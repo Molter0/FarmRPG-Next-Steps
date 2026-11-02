@@ -73,7 +73,7 @@ function walk(o, found) {
   while (queue.length) {
     const batch = queue.splice(0, 4).filter(n => !done.has(n));
     batch.forEach(n => done.add(n));
-    const pages = await Promise.all(batch.map(get));
+    const pages = await Promise.all(batch.map(n => get(n)));
     pages.forEach((p, k) => {
       if (!p) return;
       const found = [];
