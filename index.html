@@ -569,12 +569,6 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       <div class="table-wrap"><table id="pets-tbl"></table></div>
       <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="pets-reset">Use my pastes for all</button> <button type="button" id="pets-close">Done</button></p>
     </dialog>
-    <dialog id="debug-dlg" aria-labelledby="h-debug-dlg">
-      <h3 id="h-debug-dlg" style="margin-top:0">Not in the planner's data</h3>
-      <p class="small muted" style="margin:0 0 8px">New names from your pastes (each is shown once). Usually new event items or quests: the data needs a refresh.</p>
-      <div id="debug-list"></div>
-      <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
-    </dialog>
     <details id="d-places">
       <summary>Places I can use</summary>
       <p class="small muted">Places you can use; ticked automatically from your pastes. <span class="tip" data-tip="A place counts as open once you've gathered at least half of the things found only there. Change any you like.&#10;Event places (like Apple Bobbing) start unticked: tick one while its event is on." aria-label="A place counts as open once you've gathered at least half of the things found only there. Change any you like. Event places (like Apple Bobbing) start unticked: tick one while its event is on." tabindex="0">ⓘ</span></p>
@@ -747,6 +741,12 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   </footer>
 </main>
 
+<dialog id="debug-dlg" aria-labelledby="h-debug-dlg">
+  <h3 id="h-debug-dlg" style="margin-top:0">Not in the planner's data</h3>
+  <p class="small muted" style="margin:0 0 8px">New names from your pastes (each is shown once). Usually new event items or quests: the data needs a refresh.</p>
+  <div id="debug-list"></div>
+  <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
+</dialog>
 <script src="tools-menu.js?v=202611020541" defer></script>
 <script src="tower.js?v=202611020541"></script>
 <script src="parse.js?v=202611020541"></script>
