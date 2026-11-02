@@ -157,8 +157,6 @@ main[data-tab="best"] > section[data-tab="best"] { scroll-margin-top: 72px; }
 .bite-label { display: block; margin-top: 2px; }
 .bites details { border: 0; padding: 0; margin: 4px 0 0; }
 .bites details > summary { cursor: pointer; color: var(--muted); }
-/* Do these next: one column on phones, two or three side by side on wider screens */
-@media (min-width: 1100px) { main[data-tab="next"].grid-on { max-width: 1320px; } }
 #plan.list-on .bites { grid-template-columns: 1fr; }
 #quest-list .bites { margin-top: 8px; grid-template-columns: 1fr; }   /* one column, like the game's quest list */
 #quest-list .qfold { cursor: pointer; }                                  /* the title folds the entry */
@@ -182,7 +180,8 @@ body {
 h1, h2, h3 { font-family: "Bricolage Grotesque", "Segoe UI", sans-serif; line-height: 1.2; margin: 0 0 .4em; }
 h1 { font-size: 1.7rem; font-weight: 800; }
 h2 { font-size: 1.25rem; font-weight: 700; }
-main { max-width: 860px; margin: 0 auto; padding: 16px 16px 48px; }
+html { scrollbar-gutter: stable; }   /* tabs short enough to need no scrollbar don't shift sideways */
+main { max-width: 1100px; margin: 0 auto; padding: 16px 16px 48px; }   /* every tab the same width; narrower screens shrink it */
 header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 header p { margin: 0; color: var(--muted); }
 #qr-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; margin-top: 12px; }
