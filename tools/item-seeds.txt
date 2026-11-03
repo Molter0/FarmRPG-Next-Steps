@@ -79,3 +79,7 @@ Glass Gem Corn
 Mana Scarab
 Cheese Wheel
 Spooky Trophy
+Tombstone
+Consumption Belt
+Quicksilver's Ring
+Cursed Shield
