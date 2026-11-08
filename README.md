@@ -17,7 +17,7 @@ what to plant, what your farm will soon overflow with, what to cook, and what to
 Violentmonkey and just play. Each game page you open is handed to the planner when its tab is in view; pages it doesn't
 read are skipped. The script only reads pages you open yourself: it loads nothing from FarmRPG and clicks nothing.
 With it on, a **Here** card above every tab gives the planner's advice for the game page you have open (Wishing Well
-tosses, an item's keep / toss / sell, a quest's next step, Kitchen, Steak Market, pets, farm, exploring), and the
+tosses, an item's keep / toss / sell, a quest's next step, Kitchen, Steak Market, pets, farm, exploring spots, Workshop, Farmer's Market, Temple, perk pages), and the
 **Checklist** ticks the "look at" items (Item of the Day, Mercantile, gallery…) when you open those pages.
 
 Everything stays in your own browser: nothing you paste is uploaded or sent anywhere. Hover (or tap) the ⓘ marks for explanations.
@@ -60,7 +60,7 @@ with a source.
 ## Tabs
 - **Next steps**: what to do next, quickest first; Tower levels (next 10 to all, AK-only levels can fold); AK plan; Leveling up.
 - **Quests**: what each quest still needs, its cost and reward (titles fold an entry; "Show one" pins one quest's next step on top); the wishing well's free tosses for today.
-- **Best use**: where to spend nets and drinks, trips (what a planned exploring trip brings), what to plant, daily overflow, before you collect pet items (what would void), kitchen, silver goal, exploring drinks (items per gold: Arnold Palmers, Apple Ciders or Orange Juice).
+- **Best use**: where to spend nets and drinks, trips (what a planned exploring trip brings), what to plant, daily overflow, before you collect pet items (what would void), kitchen, silver goal, exploring drinks (items per gold: Arnold Palmers, Apple Ciders or Orange Juice), perks to get next (each perk for sale on your Perks and Farm Supply pages, ranked by the AP it saves on your plan per point or gold).
 - **Checklist**: daily and monthly reset checklists (from the Library), and the Steak Market (sell Truffles today?).
 - **Reference**: how the game works as the planner understands it (pigs, the Temple, bank interest, exploring drinks…), with sources; searchable.
 - **Slow grinds**: the Tower masteries that take months, what limits them, what an upgrade would save, and what maxed buildings would cost and save.

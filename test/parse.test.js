@@ -320,3 +320,40 @@ console.log("parse tests passed");
   assert.strictEqual(detectPage(t), "craftworks");
   assert.deepStrictEqual(parseCraftworks(t), { items: [{ name: "Twine", paused: false }, { name: "Rope", paused: true }, { name: "Hammer", paused: false }], slots: 10 });
 }
+
+// Workshop: "Name (have)" after its heart, then "have / need Part" lines (made-up numbers). Navigation lines like
+// "My Friends (1)" aren't recipes; the Craftworks page carries the Workshop and reads it quietly.
+{
+  const { detectPage, parseWorkshop, carriedPages } = require("../parse.js"), nl = "\n";
+  const ws = ["My Friends (1)", "Back", "Workshop", "Items that you can craft are below. Your Crafting Level is 99.", "FAVORITE ITEMS",
+    "heart_fill", "Pickaxe (120)", "300 / 2 Iron", "40 / 1 Board", "−  +", "In Craftworks",
+    "heart_fill", "Glass Bottle (0)", "500 / 1 Stone", "0 / 1 Glass Orb", "−  +", "Missing Res",
+    "CRAFTABLE ITEMS", "heart_fill", "Bird Skull Thing (3)", "7 / 2 Bird Skull 01", "−  +", "1,234 Silver",
+    "heart_fill", "Rope (9)", "2 / 3 Twine", "−  +", "In Craftworks",
+    "heart_fill", "Yarn (4)", "2 / 4 Twine", "−  +", "Missing Res"].join(nl);
+  assert.strictEqual(detectPage(ws), "workshop");
+  assert.deepStrictEqual(parseWorkshop(ws).have, { Pickaxe: 120, Iron: 300, Board: 40, "Glass Bottle": 0, Stone: 500, "Glass Orb": 0,
+    "Bird Skull Thing": 3, "Bird Skull 01": 7, Rope: 9, Twine: 2, Yarn: 4 });
+  const cw = [ws, "Items added to the Craftworks will be crafted automatically anytime the resources are available. You can add up to 10 items total to the Craftworks.",
+    "CRAFTWORKS ITEMS (1)", "1", "Rope", "Inventory: 9", "pause", "Remove", "SAVE ITEM SET"].join(nl);
+  assert.strictEqual(detectPage(cw), "craftworks");
+  assert.ok(carriedPages(cw, "craftworks").includes("workshop"));
+  assert.strictEqual(parseWorkshop(cw).have.Rope, 9);
+}
+
+// Help Needed: its headings alone are the wide-screen sidebar on every page; the page itself has "Request from" lines
+{
+  const { detectPage } = require("../parse.js"), nl = "\n";
+  assert.notStrictEqual(detectPage(["Back", "Explore", "Active Requests (5)", "Chicken Coop", "5,000 Eggs", "Special Requests (2)"].join(nl)), "quests");
+  assert.strictEqual(detectPage(fs.readFileSync(path.join(__dirname, "fixtures", "quests-trimmed.txt"), "utf8")), "quests");
+  assert.strictEqual(detectPage(["Active Requests (1)", "Hot Peppers", "Request from Rosalie - Side Request", "10 Peppers"].join(nl)), "quests");
+}
+
+// Perks for sale: name and price of each perk not yet unlocked (for "Perks to get next")
+{
+  const { parsePerks } = require("../parse.js");
+  const pr = parsePerks(fs.readFileSync(path.join(__dirname, "fixtures", "perks-trimmed.txt"), "utf8"));
+  assert.deepStrictEqual(pr.forSale.map(x => [x.name, x.cost, x.unit]), [["Farming Primer", 10, "points"], ["Artisan III", 30, "points"]]);
+  const sup = parsePerks(fs.readFileSync(path.join(__dirname, "fixtures", "supply-trimmed.txt"), "utf8"));
+  assert.ok(sup.forSale.length >= 1 && sup.forSale.every(x => x.unit === "gold" && x.cost > 0));
+}

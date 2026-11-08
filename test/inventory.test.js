@@ -22,7 +22,7 @@ assert.strictEqual(plain.items["Shimmer Stone"].count, 4);
 // Page detection
 assert.strictEqual(detectPage(text), "inventory");
 assert.strictEqual(detectPage(fs.readFileSync(path.join(__dirname, "fixtures", "mastery-trimmed.txt"), "utf8")), "mastery");
-assert.strictEqual(detectPage("Active Requests (16)\nA Way Back XXVII"), "quests");
+assert.strictEqual(detectPage("Active Requests (16)\nA Way Back XXVII\nRequest from Thomas - Main Quest"), "quests");   // the headings alone are the sidebar
 assert.strictEqual(detectPage("hello"), null);
 
 // Orchard page

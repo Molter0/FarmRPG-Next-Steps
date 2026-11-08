@@ -205,17 +205,20 @@
     const lines = text.split(/\r?\n/).map(clean).filter(Boolean);
     const page = /Points Left/i.test(text) && /Perks Avail/i.test(text) ? "perks" : "supply";
     const startAt = lines.findIndex(l => page === "perks" ? /^Farming Perks$/i.test(l) : /^Cap Upgrades$/i.test(l));
-    const unlocked = [];
+    const unlocked = [], forSale = [];
     let block = [];
     for (const l of startAt < 0 ? [] : lines.slice(startAt)) {
       if (/^Consume a meal$/i.test(l)) break;
       // A perk can be listed twice (the weekly "Upgrades on Sale" repeats one): keep the first
       if (/^Unlocked$/i.test(l)) { if (block.length && !unlocked.some(u => u.name === block[0])) unlocked.push({ name: block[0], desc: block.slice(1).join(" ") }); block = []; continue; }
-      if (/^[\d,]+ (Points|Gold)$/.test(l) || /^SALE!/.test(l)) { block = []; continue; }
+      // Not yet bought: its price ("25 Points", "285 Gold"), for "which perk next"
+      const price = l.match(/^([\d,]+) (Points|Gold)$/);
+      if (price && block.length && !forSale.some(u => u.name === block[0])) forSale.push({ name: block[0], desc: block.slice(1).join(" "), cost: toInt(price[1]), unit: price[2].toLowerCase() });
+      if (price || /^SALE!/.test(l)) { block = []; continue; }
       if (/ (Perks|Upgrades)(\s*\(.*\))?$/i.test(l) && !/[.%]/.test(l) || /^Upgrades on Sale/i.test(l)) { block = []; continue; }   // section headings
       block.push(l);
     }
-    return { page, unlocked, misc: /^Miscellaneous Perks/im.test(text) };
+    return { page, unlocked, forSale, misc: /^Miscellaneous Perks/im.test(text) };
   }
 
   // What the unlocked perks mean for the planner's settings. Only returns settings that page can tell us.
@@ -439,6 +442,25 @@
     return { items, slots: s ? toInt(s[1]) : null };
   }
 
+  // Workshop: every recipe is "Name (N)" (N = how many you have) after its favourite heart, then one "have / need Part"
+  // line per part. Gives what you have of nearly everything you craft or craft with: { have: { name: n }, recipes: n }
+  function parseWorkshop(text) {
+    const lines = String(text || "").split(/\r?\n/).map(clean).filter(Boolean), have = {};
+    const from = lines.findIndex(l => /Items that you can craft are below/i.test(l));
+    if (from < 0) return null;
+    let to = lines.findIndex((l, k) => k > from && /Items added to the Craftworks will be crafted/i.test(l));
+    if (to < 0) to = lines.length;
+    let cur = null, recipes = 0;
+    for (let k = from + 1; k < to; k++) {
+      const l = lines[k], head = /heart/i.test(lines[k - 1]) && l.match(/^(.+?) \(([\d,]+)\)$/);
+      if (head) { cur = head[1].trim(); have[cur] = toInt(head[2]); recipes++; continue; }
+      const part = cur && l.match(/^([\d,]+) \/ [\d,]+ (.+)$/);
+      if (part) { have[part[2].trim()] = toInt(part[1]); continue; }
+      if (!/^[−+\s-]+$/.test(l)) cur = null;                              // "In Craftworks", "Missing Res", "N Silver"…
+    }
+    return { have, recipes };
+  }
+
   // Temple of Reward: each chain is "Reward / Sacrifice: Item / a / b Rewards Claimed / x / y Items Sacrificed", plus
   // "ONE-TIME TEMPLE CHAIN" for event chains. Finished chains are left out. [{ reward, item, done, total, oneTime }]
   function parseTemple(text) {
@@ -587,6 +609,8 @@
     if (/About the bank/i.test(text) && /Currently in Bank/i.test(text)) return "bank";
     if (/Sacrifice: /.test(text) && /Items Sacrificed/i.test(text)) return "temple";
     if (/Items added to the Craftworks will be crafted automatically/i.test(text) && /Craftworks Items \(\d+\)/i.test(text)) return "craftworks";
+    // The Workshop after the Craftworks: the Craftworks page carries it
+    if (/Items that you can craft are below/i.test(text) && (text.match(/heart/gi) || []).length >= 5) return "workshop";
     if (/every item that your pets have brought back/i.test(text) || (/All Pet Items/i.test(text) && /currently in Inventory/i.test(text))) return "pets";
     // The Pet Shop after All Pet Items: that page carries the Pet Shop list first
     if (/About Pets/i.test(text) && /^\s*My Pets\s*$/im.test(text) && /^\s*Available Pets\s*$/im.test(text)) return "petshop";
@@ -613,14 +637,16 @@
     if (/^\s*Items Requested\s*$/im.test(text) && /^\s*Rewards\s*$/im.test(text)) return "request";
     // The Town page last: its list also shows on the Bank and Temple pages (wide screens), which are read first
     if (/^\s*Market District\s*$/im.test(text) && /Borgen's District/i.test(text)) return "town";
-    if (/Active Requests|Special Requests/i.test(text)) return "quests";
+    // Help Needed: its request headings and "Request from …" lines. The headings alone are the sidebar of a wide screen,
+    // which every page carries (and auto-read hands over every page)
+    if (/Active Requests|Special Requests/i.test(text) && /^\s*[*•-]?\s*\[?(Request from |Available )/im.test(text)) return "quests";
     return null;
   }
 
   // Other pages a copy carries besides the one pasted (the page you came from, the farm sidebar), in the order they
   // appear: each is read quietly before the pasted page, which has the last word
   const CARRIED = [["town", /^\s*Market District\s*$/im], ["farm", /^\s*Around Your Farm\s*$/im],
-    ["pigpen", /^\s*Pigs \([\d,]+ \/ [\d,]+\)\s*$/im], ["temple", /^\s*Sacrifice: /m]];
+    ["pigpen", /^\s*Pigs \([\d,]+ \/ [\d,]+\)\s*$/im], ["temple", /^\s*Sacrifice: /m], ["workshop", /Items that you can craft are below/i]];
   function carriedPages(text, kind) {
     const t = String(text || "");
     return CARRIED.filter(([k, re]) => k !== kind && re.test(t) && (k !== "temple" || /Items Sacrificed/i.test(t)))
@@ -659,7 +685,7 @@
 
   const api = { parseMastery: noChat(parseMastery), parseInventory: noChat(parseInventory), parseOrchard: noChat(parseOrchard),
     parseFarm: noChat(parseFarm), parseQuests: noChat(parseQuests), parsePerks: noChat(parsePerks), parseBuilding: noChat(parseBuilding), parseMarket: noChat(parseMarket), marketPrices, parseRequest: noChat(parseRequest), parseSteak: noChat(parseSteak), parseFriends: noChat(parseFriends), perkSettings,
-    parseExploreInfo: noChat(parseExploreInfo), parsePets: noChat(parsePets), parseTemple: noChat(parseTemple), parseCraftworks: noChat(parseCraftworks), parsePetShop: noChat(parsePetShop), parseBank: noChat(parseBank), parsePigPen: noChat(parsePigPen), parseCommunity: noChat(parseCommunity), parseTown: noChat(parseTown), parseFarmToday: noChat(parseFarmToday), detectPage: noChat(detectPage), carriedPages: noChat(carriedPages), parseSilver: noChat(parseSilver), stripChat, toInt };
+    parseExploreInfo: noChat(parseExploreInfo), parsePets: noChat(parsePets), parseTemple: noChat(parseTemple), parseCraftworks: noChat(parseCraftworks), parseWorkshop: noChat(parseWorkshop), parsePetShop: noChat(parsePetShop), parseBank: noChat(parseBank), parsePigPen: noChat(parsePigPen), parseCommunity: noChat(parseCommunity), parseTown: noChat(parseTown), parseFarmToday: noChat(parseFarmToday), detectPage: noChat(detectPage), carriedPages: noChat(carriedPages), parseSilver: noChat(parseSilver), stripChat, toInt };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.FRP = Object.assign(root.FRP || {}, api);
 })(typeof window !== "undefined" ? window : globalThis);

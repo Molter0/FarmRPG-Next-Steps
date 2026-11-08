@@ -204,6 +204,7 @@ header p { margin: 0; color: var(--muted); }
 #quick-ok.show { opacity: 1; }
 #quick-msg { max-width: 260px; }
 .here-card { border-left: 4px solid var(--good); }
+body.auto .no-auto, body:not(.auto) .only-auto { display: none; }
 #here-body ul { margin: 4px 0 0; padding-left: 20px; }
 #quick-msg .note { margin: 0; }
 :root { --tm-bg: var(--surface); --tm-ink: var(--ink); --tm-line: var(--line); }
@@ -389,7 +390,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
 
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button type="button" role="tab" data-go="next" title="Your short list: quests ready to hand in, then the quickest masteries and quests, the next Tower level and your main quests. Also the Tower and AK tables.">Next steps</button>
-    <button type="button" role="tab" data-go="quests" title="Every quest from your Help Needed paste: what it still needs and costs, what the reward is worth to you, and what comes next in the chain. Plus today's wishing well tosses.">Quests</button>
+    <button type="button" role="tab" data-go="quests" title="Every quest from your Help Needed page: what it still needs and costs, what the reward is worth to you, and what comes next in the chain. Plus today's wishing well tosses.">Quests</button>
     <button type="button" role="tab" data-go="best" title="Where to spend a pile of Large Nets, Arnold Palmers or Apple Ciders; what to plant now; what your farm will soon overflow with; and what to cook.">Best use</button>
     <button type="button" role="tab" data-go="grinds" title="The masteries that take months at your production: how long each takes, what holds it back, and the year-long ones to keep going every day.">Slow grinds</button>
     <button type="button" role="tab" data-go="vj" title="Veggie Juice: where you are in the Tomato/Watermelon, Breakfast Boost and Beet cycle, what's limiting you, and how many juices a crop needs.">Veggie Juice</button>
@@ -413,15 +414,15 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   </details>
 
   <section class="card" data-tab="next" id="next-empty" hidden>
-    <p style="margin:0"><b>Welcome!</b> Paste your <b>Mastery Progress</b> page in <a href="#" data-go="setup">Setup</a> to see your next steps.</p>
+    <p style="margin:0"><b>Welcome!</b> <span class="no-auto">Paste your <b>Mastery Progress</b> page in <a href="#" data-go="setup">Setup</a></span><span class="only-auto">Open <b>Mastery Progress</b> in the game (open every tier)</span> to see your next steps.</p>
   </section>
   <section class="card" data-tab="quests" id="quests-empty" hidden>
-    <p style="margin:0">Paste your <b>Help Needed</b> page in the <a href="#" data-go="setup">Setup</a> tab to see your quests here.</p>
+    <p style="margin:0"><span class="no-auto">Paste your <b>Help Needed</b> page in the <a href="#" data-go="setup">Setup</a> tab</span><span class="only-auto">Open <b>Help Needed</b> in the game</span> to see your quests here.</p>
   </section>
   <section class="jump small" data-tab="best" id="best-nav" aria-label="Best use sections">Go to:
     <a href="#best" data-jump="best">Spend my…</a> · <a href="#plant" data-jump="plant">What to plant</a> ·
     <a href="#overflow" data-jump="overflow">Daily overflow</a> · <a href="#steak-card" data-jump="steak-card">Steak Market</a> ·
-    <a href="#silver-goal" data-jump="silver-goal">Silver goal</a> · <a href="#kitchen" data-jump="kitchen">Kitchen</a> ·
+    <a href="#silver-goal" data-jump="silver-goal">Silver goal</a> · <a href="#kitchen" data-jump="kitchen">Kitchen</a> · <a href="#perks-next" data-jump="perks-next">Perks next</a> ·
     <a href="#" data-top>Top ↑</a>
   </section>
   <section class="card" data-tab="best" id="best" aria-labelledby="h-best">
@@ -446,7 +447,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   <section class="card" data-tab="best" id="pets-card" aria-labelledby="h-pets" hidden>
     <div class="row" style="justify-content:space-between;align-items:baseline;gap:8px"><h2 id="h-pets" style="margin:0 0 4px">Before you collect pet items</h2>
       <label class="small"><input type="checkbox" id="pets-omelette"> Crunchy Omelette (+50% collected)</label></div>
-    <p class="mono-hide small muted" style="margin:0 0 6px">From your All Pet Items paste: what would go over your inventory cap if you press Collect All now, and what to turn it into first to make room. <a href="#" id="pets-done">I've collected them</a></p>
+    <p class="mono-hide small muted" style="margin:0 0 6px">From your All Pet Items page: what would go over your inventory cap if you press Collect All now, and what to turn it into first to make room. <a href="#" id="pets-done">I've collected them</a></p>
     <div class="mono-hide" id="pets-list"></div>
     <ul class="mono-list" id="mono-pets"></ul>
   </section>
@@ -487,7 +488,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   </section>
   <section class="card" data-tab="check" id="steak-card" aria-labelledby="h-steak" hidden>
     <h2 id="h-steak" style="margin:0 0 4px">Steak Market today</h2>
-    <p class="mono-hide small muted" style="margin:0 0 6px">From your Steak Market paste. Truffles and Steaks change at reset, Kabobs every hour.</p>
+    <p class="mono-hide small muted" style="margin:0 0 6px">From your Steak Market page. Truffles and Steaks change at reset, Kabobs every hour.</p>
     <div class="mono-hide" id="steak-list"></div>
     <ul class="mono-list" id="mono-steak"></ul>
   </section>
@@ -523,16 +524,21 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     <div class="mono-hide" id="kitchen-list" style="margin-top:8px"></div>
     <ul class="mono-list" id="mono-kitchen"></ul>
   </section>
+  <section class="card mono" data-tab="best" id="perks-next" aria-labelledby="h-perks-next">
+    <h2 id="h-perks-next">Perks to get next</h2>
+    <p class="small muted" style="margin:0">What each perk you don't have saves on your plan (your open quests and next AK masteries), per point or gold. <span class="tip" data-tip="Priced by re-running your plan with the perk: Resource Saver, nets and the Farm Supply items that change what things cost. Perks that save time, silver or clicks can't be put in AP; they're listed after, cheapest first." aria-label="Priced by re-running your plan with the perk. Perks that save time, silver or clicks are listed after, cheapest first." tabindex="0">ⓘ</span></p>
+    <ul class="mono-list" id="perks-list"></ul>
+  </section>
 
   <section class="card" data-tab="setup" id="welcome" aria-labelledby="h-welcome" hidden>
     <h2 id="h-welcome" style="margin-top:0">Welcome! Let's find your next steps</h2>
-    <p style="margin:0 0 8px">Paste pages from FarmRPG to see your quickest masteries, quests and Tower levels, and where your Arnold Palmers, Apple Ciders and Large Nets do the most.</p>
+    <p style="margin:0 0 8px"><span class="no-auto">Paste pages from FarmRPG</span><span class="only-auto">Open these pages in FarmRPG</span> to see your quickest masteries, quests and Tower levels, and where your Arnold Palmers, Apple Ciders and Large Nets do the most.</p>
     <ol style="margin:0 0 8px;padding-left:20px">
       <li><b>Mastery Progress</b> (needed) <span class="tip" data-tip="Home → Perks, Mastery & More → Mastery Progress. Open every tier before copying." aria-label="Home → Perks, Mastery & More → Mastery Progress. Open every tier before copying." tabindex="0">ⓘ</span></li>
       <li><b>My Inventory</b> and <b>Help Needed</b></li>
       <li>Optional: <b>Perks</b>, <b>Farm Supply</b> perks (in Town), your <b>farm page</b> and the <b>Orchard</b></li>
     </ol>
-    <p class="small muted" style="margin:0">Computer: Ctrl+A, Ctrl+C, paste below. Phone: save the page, then <b>Upload a saved page</b>. Nothing leaves this browser.</p>
+    <p class="small muted" style="margin:0"><span class="no-auto">Computer: Ctrl+A, Ctrl+C, paste below, or install the auto-read userscript (below) and just open them. Phone: save the page, then <b>Upload a saved page</b>.</span><span class="only-auto">Auto-read is on: just open each page in the game and the planner reads it.</span> Nothing leaves this browser.</p>
   </section>
 
   <section class="card" data-tab="setup" id="paste-card" aria-labelledby="h-paste">
@@ -560,7 +566,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       <label class="field">Silver <input id="f-silver" type="number" min="0" inputmode="numeric"></label>
       <button id="clear" type="button">Forget my pastes</button>
     </div>
-    <p class="small muted" style="margin:6px 0 0">Filled in from your pastes; type to change. <span class="tip" data-tip="Tower level, AK and Mega Masteries come from your Mastery paste; silver from pages copied in the Steam app.&#10;Each Tower level costs 100 AK." aria-label="Tower level, AK and Mega Masteries come from your Mastery paste. Silver comes from any page copied in the Steam app (Chrome copies don't include it). AK (Ascension Knowledge): each Tower level costs 100." tabindex="0">ⓘ</span></p>
+    <p class="small muted" style="margin:6px 0 0">Filled in from your game pages; type to change. <span class="tip" data-tip="Tower level, AK and Mega Masteries come from your Mastery page; silver from pages copied in the Steam app.&#10;Each Tower level costs 100 AK." aria-label="Tower level, AK and Mega Masteries come from your Mastery page. Silver comes from any page copied in the Steam app (Chrome copies don't include it). AK (Ascension Knowledge): each Tower level costs 100." tabindex="0">ⓘ</span></p>
     </div>
   </section>
 
@@ -579,25 +585,25 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     <p class="row small" style="align-items:center;gap:8px;margin:8px 0"><button type="button" id="pets-edit">Pet levels…</button> <span class="muted" id="pets-sum"></span></p>
     <dialog id="pets-dlg" aria-labelledby="h-pets-dlg">
       <h3 id="h-pets-dlg" style="margin-top:0">Pet levels</h3>
-      <p class="small muted" style="margin:0 0 8px">From your Pet Shop paste (names and levels, in the game's order) and All Pet Items (which pets you have). Type a level to fix one; 0 = you don't have it; clear it to go back to your pastes.</p>
+      <p class="small muted" style="margin:0 0 8px">From your Pet Shop page (names and levels, in the game's order) and All Pet Items (which pets you have). Type a level to fix one; 0 = you don't have it; clear it to go back to your pages.</p>
       <div class="table-wrap"><table id="pets-tbl"></table></div>
       <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="pets-reset">Use my pastes for all</button> <button type="button" id="pets-close">Done</button></p>
     </dialog>
     <details id="d-places">
       <summary>Places I can use</summary>
-      <p class="small muted">Places you can use; ticked automatically from your pastes. <span class="tip" data-tip="A place counts as open once you've gathered at least half of the things found only there. Change any you like.&#10;Event places (like Apple Bobbing) start unticked: tick one while its event is on." aria-label="A place counts as open once you've gathered at least half of the things found only there. Change any you like. Event places (like Apple Bobbing) start unticked: tick one while its event is on." tabindex="0">ⓘ</span></p>
+      <p class="small muted">Places you can use; ticked automatically from your game pages. <span class="tip" data-tip="A place counts as open once you've gathered at least half of the things found only there. Change any you like.&#10;Event places (like Apple Bobbing) start unticked: tick one while its event is on." aria-label="A place counts as open once you've gathered at least half of the things found only there. Change any you like. Event places (like Apple Bobbing) start unticked: tick one while its event is on." tabindex="0">ⓘ</span></p>
       <div id="places"></div>
     </details>
     <details id="d-prod">
       <summary>Daily production</summary>
-      <p class="small muted">Filled in from your pastes; each updates only what it shows. Clear a box to remove an item.</p>
+      <p class="small muted">Filled in from your game pages; each updates only what it shows. Clear a box to remove an item.</p>
       <div class="row" id="prod"></div>
     </details>
   </section>
 
   <section class="card" data-tab="next" id="leveling" aria-labelledby="h-leveling" hidden>
     <h2 id="h-leveling" style="margin-top:0">Leveling up</h2>
-    <p class="mono-hide small muted" style="margin:0 0 6px">4x90 (Farming, Fishing, Crafting, Exploring) opens big questlines; 4x99 the major ones. <span class="tip" data-tip="Your Mastery paste shows levels, not the XP inside a level, so these count from the start of your current level." aria-label="Your Mastery paste shows levels, not the XP inside a level, so these count from the start of your current level." tabindex="0">ⓘ</span></p>
+    <p class="mono-hide small muted" style="margin:0 0 6px">4x90 (Farming, Fishing, Crafting, Exploring) opens big questlines; 4x99 the major ones. <span class="tip" data-tip="Your Mastery page shows levels, not the XP inside a level, so these count from the start of your current level." aria-label="Your Mastery page shows levels, not the XP inside a level, so these count from the start of your current level." tabindex="0">ⓘ</span></p>
     <div class="mono-hide" id="leveling-list"></div>
     <ul class="mono-list" id="mono-leveling"></ul>
   </section>
@@ -685,7 +691,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       <label class="small muted">Show one: <select id="quest-pick-in" style="max-width:14em" aria-label="Show one quest's next steps"></select></label>
     </div>
     <div id="quest-pick" hidden style="border-bottom:1px solid var(--line);margin-bottom:8px;padding-bottom:4px"></div>
-    <p class="mono-hide small muted">From your Help Needed and request pastes. Hidden quests move to the bottom. <span class="tip" data-tip="What's still needed compares each quest with your My Inventory paste. Costs use the same rules as Do these next." aria-label="What's still needed compares each quest with your My Inventory paste. Costs use the same rules as Do these next." tabindex="0">ⓘ</span></p>
+    <p class="mono-hide small muted">From your Help Needed and request pages. Hidden quests move to the bottom. <span class="tip" data-tip="What's still needed compares each quest with your My Inventory page. Costs use the same rules as Do these next." aria-label="What's still needed compares each quest with your My Inventory page. Costs use the same rules as Do these next." tabindex="0">ⓘ</span></p>
     <p class="mono-hide small muted" id="quest-sort" style="margin:0 0 6px"></p>
     <div class="mono-hide" id="quest-list"></div>
     <ul class="mono-list" id="mono-quests"></ul>
@@ -762,32 +768,32 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   <div id="debug-list"></div>
   <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
 </dialog>
-<script src="tools-menu.js?v=202611082235" defer></script>
-<script src="tower.js?v=202611082235"></script>
-<script src="parse.js?v=202611082235"></script>
-<script src="drops.js?v=202611082235"></script>
-<script src="reference.js?v=202611082235"></script>
-<script src="seasons.js?v=202611082235"></script>
-<script src="recipes.js?v=202611082235"></script>
-<script src="recipes-extra.js?v=202611082235"></script>
-<script src="items.js?v=202611082235"></script>
-<script src="upgrades.js?v=202611082235"></script>
-<script src="pets.js?v=202611082235"></script>
-<script src="savecode.js?v=202611082235"></script>
+<script src="tools-menu.js?v=202611082250" defer></script>
+<script src="tower.js?v=202611082250"></script>
+<script src="parse.js?v=202611082250"></script>
+<script src="drops.js?v=202611082250"></script>
+<script src="reference.js?v=202611082250"></script>
+<script src="seasons.js?v=202611082250"></script>
+<script src="recipes.js?v=202611082250"></script>
+<script src="recipes-extra.js?v=202611082250"></script>
+<script src="items.js?v=202611082250"></script>
+<script src="upgrades.js?v=202611082250"></script>
+<script src="pets.js?v=202611082250"></script>
+<script src="savecode.js?v=202611082250"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
-<script src="seeds.js?v=202611082235"></script>
-<script src="meals.js?v=202611082235"></script>
-<script src="ww.js?v=202611082235"></script>
-<script src="levels.js?v=202611082235"></script>
-<script src="quests.js?v=202611082235"></script>
-<script src="loot.js?v=202611082235"></script>
-<script src="trade.js?v=202611082235"></script>
-<script src="prices.js?v=202611082235"></script>
-<script src="npcs.js?v=202611082235"></script>
-<script src="engine.js?v=202611082235"></script>
+<script src="seeds.js?v=202611082250"></script>
+<script src="meals.js?v=202611082250"></script>
+<script src="ww.js?v=202611082250"></script>
+<script src="levels.js?v=202611082250"></script>
+<script src="quests.js?v=202611082250"></script>
+<script src="loot.js?v=202611082250"></script>
+<script src="trade.js?v=202611082250"></script>
+<script src="prices.js?v=202611082250"></script>
+<script src="npcs.js?v=202611082250"></script>
+<script src="engine.js?v=202611082250"></script>
 <script>
 (function () {
-  const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
+  const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parseWorkshop, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
   // A new visitor starts with no paid perks (the engine's DEFAULT_PERKS assume all of them); pastes and ticks fill them in
   const START_PERKS = { ...DEFAULT_PERKS, ironDepot: false, runecube: false, lemonSqueezer: false, cinnamonSticks: false, sprintShoes: 0, reinforcedNetting: false,
     fishingTrawl: false, wanderer: 0, resourceSaver: 0, orchardNoon: 0, antlerNoon: 0, sellBonus: 0, craftSilverCut: 0, friendBonus: 0, grapeJuice: 2 };
@@ -826,7 +832,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   fixQuestKinds();
   const save = () => { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) {} };
   // App settings: how the page looks, kept apart from game data (not in save codes, not cleared by Forget my pastes)
-  const UI_STORE = "frp-ui", BEST_IDS = ["best", "trips", "plant", "pets-card", "overflow", "silver-goal", "drinks", "kitchen"];
+  const UI_STORE = "frp-ui", BEST_IDS = ["best", "trips", "plant", "pets-card", "overflow", "silver-goal", "drinks", "kitchen", "perks-next"];
   const U_DEFAULT = { detail: "condensed", layout: "grid", truffleBar: true, truffleHideUntil: 0, bestOrder: BEST_IDS, bestOff: [], folded: {}, open: {} };
   let U = { ...U_DEFAULT };
   try { U = { ...U, ...(JSON.parse(localStorage.getItem(UI_STORE)) || {}) }; } catch (e) {}
@@ -895,7 +901,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   // Pasting while the old text is still fading: drop the old text first so the two don't mix
   $("paste").addEventListener("paste", () => { if (pasteT.length) { pasteStop(); $("paste").value = ""; } });
   // Quick paste (header, every tab): runs the same reader as the Setup paste box, then shows the result next to itself
-  let quickT = null;
+  let quickT = null, autoQuiet = false;                                  // autoQuiet: an auto-read page is being read
   $("quick-paste").addEventListener("input", () => {
     const q = $("quick-paste"), text = q.value;
     if (!text.trim()) return;
@@ -903,6 +909,8 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     const main = $("paste"); main.value = text; main.dispatchEvent(new Event("input"));
     const ok = $("paste-ok").classList.contains("show"), msg = $("status").innerHTML;
     q.value = "";
+    // Auto-read hands over every page: one it couldn't use stays quiet (Setup's auto-read line says "skipped")
+    if (autoQuiet && !ok) { autoQuiet = "failed"; main.value = ""; $("status").innerHTML = ""; $("paste-clear").hidden = true; return; }
     $("quick-ok").classList.toggle("show", ok);
     $("quick-msg").innerHTML = msg; $("quick-msg").hidden = !msg;              // what was read (or what went wrong)
     quickT = setTimeout(() => { $("quick-ok").classList.remove("show"); $("quick-msg").hidden = true; }, /data-undo-paste/.test(msg) ? 30000 : ok ? 5000 : 10000);
@@ -913,30 +921,37 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   // lists the latest few, read or skipped, so a page that didn't take shows up there.
   const AUTO_SEEN = "frp-auto-seen";
   let autoSeen = [], autoLog = {}, autoOn = false;
+  // An instruction in the right words: paste the page, or (auto-read on) just open it in the game
+  const getPage = (paste, open) => autoOn ? open : paste;
   try { autoSeen = JSON.parse(localStorage.getItem(AUTO_SEEN)) || []; } catch (e) {}
   const autoWhere = w => String(w || "a game page").replace(/^#!?\/?/, "").replace(/\?.*$/, "").replace(/\.php$/, "") || "home";
   const showAuto = () => {
     const hm = t => new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     const last = Object.values(autoLog).sort((a, b) => b.at - a.at).slice(0, 4);
     $("auto-on").innerHTML = `<b class="ok">✓</b> Auto-read is on. ` + (last.length
-      ? "Latest game pages: " + last.map(p => `${esc(autoWhere(p.where))} ${hm(p.at)} → ${p.kind ? esc(PAGE_NAME[p.kind] || p.kind) : `<span class="muted">skipped (not a page the planner reads)</span>`} <a href="#" data-auto-copy="${esc(p.id)}" title="Copy the text that came in, to report a page that reads wrong">copy</a>`).join(" · ")
+      ? "Latest game pages: " + last.map(p => `${esc(autoWhere(p.where))} ${hm(p.at)} → ${p.kind ? esc(PAGE_NAME[p.kind] || p.kind) : `<span class="muted">skipped (nothing the planner reads)</span>`} <a href="#" data-auto-copy="${esc(p.id)}" title="Copy the text that came in, to report a page that reads wrong">copy</a>`).join(" · ")
       : "No game pages have come in yet: open one in FarmRPG, wait 2 seconds, then come back to this tab.");
   };
   window.addEventListener("message", e => {
     const d = e.data;
     if (e.origin !== location.origin || !d) return;
     if (d.type === "frp-auto-here" && d.where) { hereSeen(d.where, d.at || Date.now()); return; }
-    if (d.type === "frp-auto-hello") { autoOn = true; $("auto-off").hidden = true; $("auto-on").hidden = false; showAuto(); renderPasteToggle(); return; }
+    if (d.type === "frp-auto-hello") { autoOn = true; document.body.classList.add("auto"); $("auto-off").hidden = true; $("auto-on").hidden = false; showAuto(); render(false); return; }
     if (d.type !== "frp-auto-page" || typeof d.text !== "string" || !d.id) return;
     const kind = detectPage(d.text);
     autoLog[d.id] = { where: d.where, at: d.at || Date.now(), kind, text: d.text };   // kept for its copy link (this tab only)
+    if (d.where) { const t = screenTitleOf(d.text); if (t) titleAt[gamePath(d.where)] = t; }
     if (d.where && noteVisit(d.where, d.at || Date.now(), kind)) { save(); renderChecklist(); }
+    if (HERE && d.where && gamePath(d.where) === HERE.path) renderHere();     // the page you're on just came in
     showAuto();
     if (autoSeen.includes(d.id)) return;
     autoSeen = [...autoSeen, d.id].slice(-200);
     try { localStorage.setItem(AUTO_SEEN, JSON.stringify(autoSeen)); } catch (err) {}
     if (!kind) return;                                                   // the home page, chat, a shop…: not for us
-    const q = $("quick-paste"); q.value = d.text.slice(0, 5e6); q.dispatchEvent(new Event("input"));
+    const q = $("quick-paste"); q.value = d.text.slice(0, 5e6);
+    autoQuiet = true; q.dispatchEvent(new Event("input"));
+    if (autoQuiet === "failed") { autoLog[d.id].kind = null; showAuto(); }
+    autoQuiet = false;
   });
   $("auto-on").addEventListener("click", e => {
     const a = e.target.closest("[data-auto-copy]"), p = a && autoLog[a.dataset.autoCopy];
@@ -1003,8 +1018,11 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
         }
       } else if (kind === "perks" || kind === "supply") {
         // Each page knows some perks; the two pages' crop-growth and Resource Saver amounts add up
-        const got = perkSettings(parsePerks(text));
+        const pr = parsePerks(text), got = perkSettings(pr);
         S.perkPages = { ...(S.perkPages || {}), [kind]: got };
+        // What's for sale and what you own, for "Perks to get next" (points left: the Perks page's own count)
+        const left = String(text).match(/Points Left\s+([\d,]+)/i);
+        S.perkShop = { ...(S.perkShop || {}), [kind]: { unlocked: pr.unlocked, forSale: pr.forSale, misc: pr.misc, points: left ? +left[1].replace(/,/g, "") : null, at: Date.now() } };
         const pp = S.perkPages, add = k => ((pp.perks || {})[k] || 0) + ((pp.supply || {})[k] || 0);
         Object.assign(S.perks, got, { cropGrowthCut: add("cropGrowthCut"), resourceSaver: add("resourceSaver"), cornGrowthCut: add("cornGrowthCut"), cookFaster: add("cookFaster"), sellBonus: add("sellBonus"), craftSilverCut: add("craftSilverCut") });
         // Friendship gift bonus (knowledge/mechanics/friendship.md)
@@ -1071,6 +1089,19 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
           const over = inv.cap ? names.filter(n => r.items[n].have + r.items[n].found > inv.cap).length : null;
           msg = `<div class="note" style="border-color:var(--good)">Read your pet items: ${fmt(names.length)} items${over != null ? `, ${fmt(over)} would go over your cap` : " (paste My Inventory once so the planner knows your cap)"}. See Best use.</div>`;
         }
+      } else if (kind === "workshop") {
+        // What you have of everything the Workshop lists (made things and their parts): counts only, the rest of the
+        // inventory stays as it was
+        const r = parseWorkshop(text), names = r ? Object.keys(r.have) : [];
+        if (names.length < 5) msg = warn("No recipes were found on the Workshop page. Scroll through it once and try again.");
+        else {
+          const inv = S.inventory || (S.inventory = { items: {}, cap: null, at: Date.now() });
+          const top = Math.max(...names.map(n => r.have[n]));
+          if (inv.cap && top > inv.cap) inv.cap = top;                         // nothing sits above the cap: it has grown
+          for (const n of names) inv.items[n] = { ...(inv.items[n] || {}), count: r.have[n], atMax: !!inv.cap && r.have[n] >= inv.cap };
+          S.workshopAt = Date.now(); done = true;
+          msg = `<div class="note" style="border-color:var(--good)">Read the Workshop: updated what you have of ${fmt(names.length)} items.</div>`;
+        }
       } else if (kind === "petshop") {
         // Your pets' names and levels, in the game's pet order (knowledge/mechanics/pets.md)
         const r = parsePetShop(text);
@@ -1106,7 +1137,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
         // The Farmer's Market: base prices = stack value / count. Needs My Inventory for the counts.
         const m = parseMarket(text), n = Object.keys(m.items).length;
         if (!n) msg = warn("No items with prices were found. Copy the whole Farmer's Market page and try again.");
-        else if (!S.inventory) { S.market = m.items; msg = warn("Market read. Paste My Inventory too: prices are worked out from your item counts."); done = true; }
+        else if (!S.inventory) { S.market = m.items; msg = warn(`Market read. ${getPage("Paste", "Open")} My Inventory too: prices are worked out from your item counts.`); done = true; }
         else {
           const got = marketPrices(m, Object.fromEntries(Object.entries(S.inventory.items).map(([k, v]) => [k, v.count])), S.inventory.cap);
           S.prices = { ...(S.prices || {}), ...got }; S.pricesAt = Date.now(); delete S.market; done = true;
@@ -1220,7 +1251,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   // The last few states before a paste, kept on this device (not in save codes)
   const UNDO_STORE = "frp-undo", UNDO_MAX = 3;
   const PAGE_NAME = { mastery: "Mastery Progress", inventory: "My Inventory", farm: "farm page", perks: "Perks", supply: "Farm Supply perks (Town)", friends: "Friendship",
-    steak: "Steak Market", pets: "All Pet Items", temple: "Temple of Reward", craftworks: "Craftworks", petshop: "Pet Shop", bank: "Bank", town: "Town", pigpen: "Pig Pen", "explore-info": "Exploring Effectiveness", request: "request page", market: "Farmer's Market", building: "building page", orchard: "Orchard", quests: "Help Needed" };
+    steak: "Steak Market", pets: "All Pet Items", temple: "Temple of Reward", craftworks: "Craftworks", workshop: "Workshop", petshop: "Pet Shop", bank: "Bank", town: "Town", pigpen: "Pig Pen", "explore-info": "Exploring Effectiveness", request: "request page", market: "Farmer's Market", building: "building page", orchard: "Orchard", quests: "Help Needed" };
   const undoList = () => { try { return JSON.parse(localStorage.getItem(UNDO_STORE)) || []; } catch (e) { return []; } };
   function pushUndo(label, state) {
     let list = [...undoList(), { label, at: Date.now(), S: state }].slice(-UNDO_MAX);
@@ -1505,7 +1536,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     $("trips").hidden = true;
     $("quests").hidden = true;
     $("quests-empty").hidden = !!(ready && questList().length);
-    if (!ready) { $("best-note").textContent = "Paste your Mastery Progress page in the Setup tab first."; $("best-list").innerHTML = ""; return; }
+    if (!ready) { $("best-note").textContent = getPage("Paste your Mastery Progress page in the Setup tab first.", "Open Mastery Progress in the game first (open every tier)."); $("best-list").innerHTML = ""; return; }
 
     const tp = towerPlan({ level: p.level, ak: p.ak, items: p.items, mmCount: p.mm }, TOWER, 30);
     const akTarget = Math.max(tp.akToClearFree, tower100(p.ak));
@@ -1513,7 +1544,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     renderPlaces(p);
     // Daily production = items with a known rate (costed in time, not AP)
     const passive = [...new Set([...Object.entries(allProd()).filter(([, v]) => v > 0).map(([n]) => n), ...Object.keys(S.orchard || {}), ...bought(), ...(pigsOn() ? ["Bacon"] : [])])];
-    C = makeCoster(DROPS, RECIPES, S.perks, W, passive);
+    C = makeCoster(DROPS, RECIPES, S.perks, W, passive); PASSIVE = passive;
     const ap = akPlan(p.items, { akTarget, tower: TOWER, fromLevel: p.level, skills: p.skills, drops: DROPS, coster: C, where: W, hidden: S.hidden,
       adjust, timeOf, quickHours: 24, slowHours: (S.perks.slowDays ?? 7) * 24 });
     const inv = S.inventory;
@@ -1545,10 +1576,11 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     $("quests").hidden = !questList().length;
     if (questList().length) renderQuests(p);
     renderWW(p);
+    renderPerksNext();
     renderHere();
   }
   // Places the player can use this month: auto-detected from the paste, then their own ticks on top
-  let W = null, C = null, O = null;
+  let W = null, C = null, O = null, PASSIVE = [];
   // "Tower" tag whose tip (hover or tap) names the Tower levels that still need this item, e.g. "Needed for Tower 235 (Mega Mastery)"
   const towerTipText = (item, have) => {
     const all = (O && O.towerUse[item]) || [], open = all.filter(u => (have || 0) < (u.tier === "mm" ? 1e6 : 1e5));
@@ -1640,7 +1672,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     $("stale-banner").innerHTML = (old.length && S.mastery ? `<div class="note" style="margin:0 0 12px">${old.join("; ")}. ${auto
       ? "Open it in the game and the planner picks it up."
       : `Paste a fresh copy in <a href="#" data-go="setup">Setup</a> when you can.`}</div>` : "") +
-      (truffles ? `<div class="note" style="margin:0 0 12px">Truffle prices change at reset. For today's sell check, paste the Steak Market page (Town › Steak Market) in the quick paste box.</div>` : "");
+      (truffles ? `<div class="note" style="margin:0 0 12px">Truffle prices change at reset. For today's sell check, ${getPage("paste the Steak Market page (Town › Steak Market) in the quick paste box", "open the Steak Market in the game (Town › Steak Market)")}.</div>` : "");
     if (!hidden) return;
     $("paste-summary").innerHTML = old.length
       ? `<span class="muted">Some pages are getting old (see the note above).</span>`
@@ -1659,12 +1691,12 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     // Typed numbers win over the paste: say so, so a stray edit in the boxes below is easy to spot
     const typed = k => S.manual[k] != null && m && m.tower && S.manual[k] !== m.tower[k] ? ` (typed below; your paste said ${fmt(m.tower[k])})` : "";
     li.push(m ? `<li>Mastery Progress: ${fmt(Object.keys(m.items).length)} items${m.tower ? `, Tower level ${p.level}${typed("level")}, ${fmt(p.ak)} unused AK${typed("ak")}` : ""} <span class="muted small">(${ago(m.at)})</span></li>`
-              : `<li class="missing">Mastery Progress: not pasted yet (needed)</li>`);
+              : `<li class="missing">Mastery Progress: not read yet (needed)</li>`);
     li.push(inv ? `<li>My Inventory: ${fmt(Object.keys(inv.items).length)} items${inv.cap ? `, you can hold ${fmt(inv.cap)} of each` : ""} <span class="muted small">(${ago(inv.at)})</span></li>`
-                : `<li class="missing">My Inventory: not pasted yet (optional, shows your supplies)</li>`);
+                : `<li class="missing">My Inventory: not read yet (optional, shows your supplies)</li>`);
     const qs = S.quests;
     li.push(qs ? `<li>Help Needed: ${qs.length} quests (${qs.filter(q => q.ready).length} ready, ${qs.filter(q => q.section === "special").length} specials) <span class="muted small">(${ago(S.questsAt)})</span></li>`
-               : `<li class="missing">Help Needed: not pasted yet (optional, for quest suggestions)</li>`);
+               : `<li class="missing">Help Needed: not read yet (optional, for quest suggestions)</li>`);
     const rq = Object.values(S.requests || {});
     // Request pages pasted one by one: mostly Personal Help Requests (a pasted special shows as one by name)
     const reqName = r => r.name && r.name !== "Items Wanted" ? esc(r.name) : `${esc(r.npc || "A")}'s ${r.kind === "special" ? "special" : "personal"} request`;
@@ -1674,31 +1706,31 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     const R = (at, html) => rare.push(at && Date.now() - at > MONTH ? html.replace("<li>", '<li class="stale">').replace("</li>", " <span class=\"small\">(over a month old: paste it again)</span></li>") : html);
     const pr = S.production;
     R(pr && S.productionAt, pr ? `<li>Farm: ${Object.keys(pr).length} things your buildings make <span class="muted small">(${ago(S.productionAt)})</span></li>`
-               : `<li class="missing">Farm page: not pasted yet (optional, turns wood, straw, grapes… into hours or days; or type them under "Daily production")</li>`);
+               : `<li class="missing">Farm page: not read yet (optional, turns wood, straw, grapes… into hours or days; or type them under "Daily production")</li>`);
     const o = S.orchard;
     R(o && S.orchardAt, o ? `<li>Orchard: ${Object.entries(o).map(([n, v]) => `${fmt(v.production)} ${n}s`).join(", ")} each midnight <span class="muted small">(${ago(S.orchardAt)})</span></li>`
-              : `<li class="missing">Orchard: not pasted yet (optional, turns fruit into days of production)</li>`);
+              : `<li class="missing">Orchard: not read yet (optional, turns fruit into days of production)</li>`);
     li.push(S.silver != null ? `<li>Silver: ${fmt(S.silver)}${S.gold != null ? `, ${fmt(S.gold)} gold` : ""} <span class="muted small">(${ago(S.silverAt)})</span></li>`
                              : `<li class="missing">Silver: not seen yet (pasted from the Steam app, or type it below)</li>`);
     if (S.friends) R(S.friendsAt, `<li>Friendship: ${Object.keys(S.friends).length} townsfolk <span class="muted small">(${ago(S.friendsAt)})</span></li>`);
     // Older saves only kept one time for both perk pages
     const pp = S.perkPages || {}, pat = k => (S.perkAt || {})[k] || S.perkPagesAt;
     R(pp.perks && pat("perks"), pp.perks ? `<li>Perks: read <span class="muted small">(${ago(pat("perks"))})</span></li>`
-                     : `<li class="missing">Perks page: not pasted yet (optional, fills in Your perks)</li>`);
+                     : `<li class="missing">Perks page: not read yet (optional, fills in Your perks)</li>`);
     R(pp.supply && pat("supply"), pp.supply ? `<li>Farm Supply perks (Town): read <span class="muted small">(${ago(pat("supply"))})</span></li>`
-                      : `<li class="missing">Farm Supply perks page (in Town, not your farm): not pasted yet (optional, fills in Your perks)</li>`);
+                      : `<li class="missing">Farm Supply perks page (in Town, not your farm): not read yet (optional, fills in Your perks)</li>`);
     R(S.pigs && S.pigs.at, S.pigs ? `<li>Pig Pen: ${fmt(S.pigs.xp.length)} pigs, followed day by day <span class="muted small">(${ago(S.pigs.at)})</span></li>`
-      : `<li class="missing optional">Pig Pen: not pasted yet (optional, for pig day reminders)</li>`);     // optional: never keeps the fold open
+      : `<li class="missing optional">Pig Pen: not read yet (optional, for pig day reminders)</li>`);     // optional: never keeps the fold open
     R(S.petShop && S.petShop.at, S.petShop ? `<li>Pet Shop: ${fmt(S.petShop.pets.length)} pets <span class="muted small">(${ago(S.petShop.at)})</span></li>`
-      : `<li class="missing optional">Pet Shop: not pasted yet (optional, your pets' levels)</li>`);
+      : `<li class="missing optional">Pet Shop: not read yet (optional, your pets' levels)</li>`);
     R(S.craftworks && S.craftworks.at, S.craftworks ? `<li>Craftworks: ${fmt(S.craftworks.items.length)} recipes <span class="muted small">(${ago(S.craftworks.at)})</span></li>`
-      : `<li class="missing optional">Craftworks: not pasted yet (optional, for how much your buildings can usefully make)</li>`);
+      : `<li class="missing optional">Craftworks: not read yet (optional, for how much your buildings can usefully make)</li>`);
     if (S.temple) R(S.temple.at, `<li>Temple of Reward: ${fmt(S.temple.chains.length)} open chains <span class="muted small">(${ago(S.temple.at)})</span></li>`);
     if (S.bank && S.bank.at) R(S.bank.at, `<li>Bank: ${S.bank.bank != null ? `${short(S.bank.bank)} banked` : "read"} <span class="muted small">(${ago(S.bank.at)})</span></li>`);
     // Frequent: the Steak Market changes every day
     const sm = S.steakMarket;
     li.push(sm ? `<li>Steak Market: ${gameDay(sm.at) === gameDay(Date.now()) ? "today's prices" : "prices from before today's reset"} <span class="muted small">(${ago(sm.at)})</span></li>`
-               : `<li class="missing">Steak Market: not pasted yet (optional, for Truffle, Steak and Kabob prices)</li>`);
+               : `<li class="missing">Steak Market: not read yet (optional, for Truffle, Steak and Kabob prices)</li>`);
     const stale = rare.filter(h => /class="(missing|stale)"/.test(h)).length;
     $("loaded").innerHTML = li.join("") + `<li class="rare-wrap"><details id="loaded-rare"${stale ? " open" : ""}><summary>${stale
       ? `Infrequent pages: ${stale} to paste or refresh` : "Infrequent pages: all under a month old"} <span class="small">(farm, Orchard, perks, Pig Pen…)</span></summary><ul class="loaded" style="margin-top:4px">${rare.join("")}</ul></details></li>`;
@@ -2919,7 +2951,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     $("pets-card").hidden = !P;
     if (!P) return;
     const ago = Math.round((Date.now() - P.at) / 6e4), when = ago < 60 ? `${ago} min ago` : `${Math.round(ago / 60)} h ago`;
-    if (!O || O.cap === Infinity) { $("pets-list").innerHTML = `<p class="small muted">Paste My Inventory once so the planner knows your cap.</p>`; $("mono-pets").innerHTML = ""; return; }
+    if (!O || O.cap === Infinity) { $("pets-list").innerHTML = `<p class="small muted">${getPage("Paste", "Open")} My Inventory once so the planner knows your cap.</p>`; $("mono-pets").innerHTML = ""; return; }
     // A Crunchy Omelette adds 50% to everything collected
     const boost = S.petsOmelette ? 1.5 : 1; $("pets-omelette").checked = !!S.petsOmelette;
     const over = Object.entries(P.items).map(([n, x0]) => { const x = { ...x0, found: Math.floor(x0.found * boost) }; return { n, x, lost: (O.onHand[n] ?? x.have) + x.found - O.cap }; })
@@ -3397,7 +3429,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
         locs.map(l => { const rs = valueAt(l), by = Object.fromEntries(rs.map(r => [r.kind, r]));
           return `<tr style="border-top:1px solid var(--line)"><td style="padding:4px 8px">${esc(l)}</td><td style="text-align:right;padding:4px 8px">${(S.perks.ee || {})[l] ? fmt(S.perks.ee[l]) : "<span class=\"muted\">—</span>"}</td>${
             ["AP", "AC", "OJ"].map(k => `<td style="text-align:right;padding:4px 8px">${cell(by[k], rs[0])}</td>`).join("")}</tr>`; }).join("")}</tbody></table></div>
-        <p class="small muted" style="margin:6px 0 0">EE — = not pasted yet; cider is counted at the minimum there. Paste a place's Exploring Effectiveness page to fill it in.</p>`;
+        <p class="small muted" style="margin:6px 0 0">EE — = not read yet; cider is counted at the minimum there. Paste a place's Exploring Effectiveness page to fill it in.</p>`;
     }
     const what = r => r.kind === "AP" ? `${fmt(r.items)} items, no stamina`
       : r.kind === "AC" ? `${fmt(r.explores)} explores, ~${short(r.items)} items, uses ~${fmt(Math.ceil(r.ojPerAC))} Orange Juice`
@@ -3649,6 +3681,83 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     return itemById[id] || null;
   };
   const questById = id => Object.keys(QUESTS.quests).find(n => QUESTS.quests[n].id === id) || null;
+  // Items your open quests use, down each chain up to 5 steps ahead
+  const questItems = () => {
+    const out = new Set(), hidden = new Set(S.questHidden || []);
+    for (const q of S.quests || []) {
+      if (hidden.has(q.name)) continue;
+      for (let name = q.name, step = 0; name && step <= 5; step++) { const d = QUESTS.quests[name]; if (!d) break; d.need.forEach(([i]) => out.add(i)); name = d.next && d.next[0]; }
+    }
+    return out;
+  };
+  // Workshop: craft what your quests are short of when the parts are there; name the parts that block what you need
+  // (quest items, and the drinks and nets you always use)
+  function workshopAdvice() {
+    const onHand = O ? O.onHand : {}, out = [], recipe = n => (RECIPES.items[n] || {}).recipe;
+    const makes = n => { const r = recipe(n); return r && r.length ? Math.min(...r.map(([i, q]) => Math.floor((onHand[i] || 0) / q))) : 0; };
+    const wants = [];
+    for (const item of questItems()) {
+      if (!recipe(item)) continue;
+      const q = questNeedOf(item), miss = q.total - (onHand[item] || 0);
+      if (miss >= 1) wants.push({ item, short: miss, why: q.names });
+    }
+    const now = wants.map(w => ({ ...w, n: Math.min(w.short, makes(w.item)) })).filter(w => w.n >= 1).sort((a, b) => b.n - a.n);
+    if (now.length) out.push(monoLi("Craft now", now.slice(0, 4).map(w => `<b>${fmt(w.n)} ${esc(w.item)}</b> <span class="small muted">for ${w.why.join(", ")}</span>`).join("<br>")));
+    // Blockers: a part you have too few of, for a quest item you can't make enough of or a drink/net you can't make at all
+    const block = {};
+    const blockedBy = (item, need) => (recipe(item) || []).filter(([i, q]) => (onHand[i] || 0) < q * need).forEach(([i]) => (block[i] ||= new Set()).add(item));
+    wants.filter(w => makes(w.item) < w.short).forEach(w => blockedBy(w.item, 1));
+    USED_NOT_SOLD.filter(n => recipe(n) && !makes(n)).forEach(n => blockedBy(n, 1));
+    const rows = Object.entries(block).sort((a, b) => b[1].size - a[1].size).slice(0, 3).map(([part, items]) => {
+      const sub = (recipe(part) || []).filter(([i, q]) => (onHand[i] || 0) < q).map(([i]) => `${esc(i)} (${fmt(onHand[i] || 0)})`);
+      return `<b>${esc(part)}</b> <span class="small muted">(you have ${fmt(onHand[part] || 0)})</span> holds up ${[...items].slice(0, 4).map(esc).join(", ")}${items.size > 4 ? ` and ${items.size - 4} more` : ""}${
+        sub.length ? `. To make it you're out of ${sub.join(", ")}` : itemEffort(part, 1).replace(/^, /, ". Get it: ")}`;
+    });
+    if (rows.length) out.push(monoLi("What's holding you up", rows.join("<br>")));
+    return out.join("") || monoLi("Workshop", "Nothing your quests need can be crafted right now, and nothing is blocked.");
+  }
+  // Farmer's Market: what's at your cap that nothing needs: sell it before more is wasted
+  function marketAdvice(p) {
+    if (!O || O.cap === Infinity) return null;
+    const onHand = O.onHand, quest = questItems();
+    const rows = Object.entries(onHand).filter(([n, c]) => c >= O.cap && !quest.has(n) && !keepFor(n, p) && sellPrice(n, p) != null)
+      .map(([n, c]) => ({ n, c, price: sellPrice(n, p) })).sort((a, b) => b.price * b.c - a.price * a.c).slice(0, 6);
+    return rows.length ? monoLi("Sell (at your cap, nothing needs them)", rows.map(r => `<b>${esc(r.n)}</b> <span class="small muted">${short(r.price)} each · ${short(r.price * r.c)} for all ${fmt(r.c)}${sellNote(r.n, p)}</span>`).join("<br>"))
+      : monoLi("Sell", "Nothing at your cap is safe to sell: what's full still goes into something you need.");
+  }
+  // Temple of Reward: feed chains from what your quests don't need
+  function templeAdvice() {
+    const onHand = O ? O.onHand : {}, chains = (S.temple && S.temple.chains) || [];
+    if (!chains.length) return null;
+    return chains.map(c => {
+      const left = c.total - c.done, spare = Math.max(0, (onHand[c.item] || 0) - questNeedOf(c.item).total), n = Math.min(left, spare);
+      return monoLi(esc(c.reward), n >= 1 ? `<b>Sacrifice ${fmt(n)} ${esc(c.item)}</b> <span class="small muted">${n >= left ? "finishes the chain" : `${fmt(left - n)} more to go`}; your quests don't need them</span>`
+        : `<span class="muted">${esc(c.item)}: none to spare${questNeedOf(c.item).total ? " (your quests need them)" : ""}; ${fmt(left)} still to go${itemEffort(c.item, left)}</span>`);
+    }).join("");
+  }
+  // An exploring or fishing spot: what your quests still need from here, then where drinks / nets go furthest
+  function spotAdvice(loc, p) {
+    const out = [], hidden = new Set(S.questHidden || []), got = {};
+    if (loc && C) for (const q of S.quests || []) {
+      if (hidden.has(q.name)) continue;
+      for (let name = q.name, step = 0; name && step <= 5; step++) {
+        const d = QUESTS.quests[name]; if (!d) break;
+        for (const m of questNeeds(d, p).missing) {
+          const here = Object.entries((m.effort && m.effort.byPlace) || {}).filter(([k]) => k.split("|")[1] === loc);
+          if (here.length && !got[m.item]) got[m.item] = { left: m.left, quest: step ? `${esc(name)} (${step} ahead)` : esc(name), cost: here.reduce((s, [k, v]) => s + v, 0), unit: here[0][0].split("|")[0] };
+        }
+        name = d.next && d.next[0];
+      }
+    }
+    const rows = Object.entries(got).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5);
+    if (rows.length) out.push(monoLi(`Your quests need from ${esc(loc)}`, rows.map(([i, g]) => `<b>${short(g.left)} ${esc(i)}</b> <span class="small muted">for ${g.quest} · ~${short(g.cost)} ${g.unit}</span>`).join("<br>")));
+    else if (loc) out.push(monoLi(esc(loc), "None of your quests need anything from here right now."));
+    return out.join("") + $("mono-drinks").innerHTML + $("mono-best").innerHTML;
+  }
+  // The title on screen: the line after the last "Back" in auto-read's text ("Back / Workshop / Back / Craftworks")
+  const screenTitleOf = text => { const ls = String(text || "").split(/\r?\n/).map(l => l.trim()); const k = ls.lastIndexOf("Back"); return k >= 0 && ls[k + 1] || null; };
+  const titleAt = {};                                                   // game path → its on-screen title
+  const placeOf = title => { const t = String(title || "").toLowerCase(); return Object.keys(DROPS.locs).find(l => l.toLowerCase() === t || l.toLowerCase() === "the " + t) || null; };
   function herePage(path) {
     const base = path.split("?")[0], kind = kindAt[path], p = player();
     const mono = (id, title, go) => { const h = $(id) && $(id).innerHTML.trim(); return h ? { title, list: h, go } : null; };
@@ -3660,10 +3769,16 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     if (kind === "pigpen" || base === "pigpen.php") return $("pig-strip").hidden ? null : { title: "Pig Pen", html: `<p style="margin:0">${$("pig-strip").innerHTML}</p>` };
     if (kind === "farm" || base === "xfarm.php") return mono("mono-plant", "Your farm", ["best", "plant"]);
     if (kind === "quests" || base === "quests.php") return mono("mono-quests", "Help Needed", ["quests", "quests"]);
-    if (/^(area|explore|fishing|fish)\.php$/.test(base)) {
-      const h = [$("mono-best").innerHTML, $("mono-drinks").innerHTML].join("").trim();
-      return h ? { title: base.startsWith("fish") ? "Fishing" : "Exploring", list: h, go: ["best", "best"] } : null;
+    // An exploring or fishing spot: known by its address, or by its on-screen title being a place the planner knows
+    const loc = placeOf(titleAt[path]);
+    if (loc || /^(area|explore|fishing|fish)\.php$/.test(base)) {
+      const h = spotAdvice(loc, p).trim();
+      return h ? { title: loc ? esc(loc) : base.startsWith("fish") ? "Fishing" : "Exploring", list: h, go: ["best", "best"] } : null;
     }
+    if (kind === "perks" || kind === "supply" || base === "perks.php" || base === "supply.php") return { title: kind === "supply" || base === "supply.php" ? "Farm Supply" : "Perks", list: $("perks-list").innerHTML, go: ["best", "perks-next"] };
+    if (kind === "workshop" || base === "workshop.php") return S.mastery ? { title: "Workshop", list: workshopAdvice() } : null;
+    if (kind === "market" || base === "market.php") { const h = S.mastery && marketAdvice(p); return h ? { title: "Farmer's Market", list: h } : null; }
+    if (kind === "temple" || base === "temple.php") { const h = templeAdvice(); return h ? { title: "Temple of Reward", list: h } : null; }
     if (base === "item.php") {
       const name = itemName(+pathParam(path, "id"));
       return name && S.mastery ? { title: esc(name), list: itemAdvice(name, p) } : null;
@@ -3703,6 +3818,62 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   $("here-x").addEventListener("click", () => { hereClosed = HERE && HERE.path; renderHere(); });
   setInterval(() => { if (HERE && !document.hidden) renderHere(); }, 60e3);   // the card goes away 30 min after the last page
 
+
+  // ---------- Perks to get next ----------
+  // Each perk for sale on your Perks (points) and Farm Supply (gold) pages: add it to your settings, re-price your plan
+  // (open quests and the AK picks), and rank by AP saved per point / gold. Only perks the costing reads can be priced.
+  function planAP(perks) {
+    if (!S.mastery || !W || !LAST || !LAST.ap) return null;
+    const c = makeCoster(DROPS, RECIPES, perks, W, PASSIVE), onHand = O ? O.onHand : {}, hidden = new Set(S.questHidden || []);
+    let ap = 0;
+    const add = (item, n) => { if (n < 1) return; const e = c.effort(item, n); if (e && e.unit !== "explores" && isFinite(e.amount)) ap += e.amount; };
+    for (const q of S.quests || []) { if (hidden.has(q.name)) continue; const d = QUESTS.quests[q.name]; if (d) for (const [i, n] of d.need) add(i, n - (onHand[i] || 0)); }
+    for (const pk of LAST.ap.picks) add(pk.item, pk.left);
+    return ap;
+  }
+  // What buying one perk changes in the settings (numbers add up across both pages; yes/no perks switch on)
+  function perkDelta(kind, perk) {
+    const sh = S.perkShop[kind], a = perkSettings({ page: kind, unlocked: sh.unlocked, misc: sh.misc });
+    const b = perkSettings({ page: kind, unlocked: [...sh.unlocked, { name: perk.name, desc: perk.desc }], misc: sh.misc }), d = {};
+    for (const k of Object.keys(b)) if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) d[k] = typeof b[k] === "number" ? b[k] - (a[k] || 0) : b[k];
+    return d;
+  }
+  const PERK_HELPS = { cropGrowthCut: "crops grow faster", cornGrowthCut: "corn grows faster", doublePrizes: "more crops per harvest", wanderer: "exploring uses less stamina",
+    sellBonus: "more silver from selling", craftSilverCut: "cheaper crafting", cookFaster: "faster cooking", grapeJuice: "more Grape Juice a day", wwTosses: "more wishing well tosses",
+    orchardNoon: "more fruit", antlerNoon: "more Antlers", animalLover: "animals level faster", sprintShoes: "cheaper exploring upgrades", friendPrimer: "faster friendships", omg: "faster friendships" };
+  function perksNext() {
+    const base = planAP(S.perks), out = { points: [], gold: [] };
+    for (const kind of ["perks", "supply"]) {
+      const sh = (S.perkShop || {})[kind];
+      if (!sh) continue;
+      for (const perk of sh.forSale || []) {
+        const d = perkDelta(kind, perk), perks = { ...S.perks };
+        for (const [k, v] of Object.entries(d)) perks[k] = typeof v === "number" ? (S.perks[k] || 0) + v : v;
+        const keys = Object.keys(d), saved = base != null && keys.length ? base - planAP(perks) : null;
+        out[perk.unit].push({ ...perk, kind, saved: saved != null && saved >= 1 ? saved : null, helps: keys.map(k => PERK_HELPS[k]).filter(Boolean) });
+      }
+    }
+    for (const u of ["points", "gold"]) out[u].sort((a, b) => (b.saved != null) - (a.saved != null) || (b.saved || 0) / b.cost - (a.saved || 0) / a.cost || a.cost - b.cost);
+    return out;
+  }
+  function perkRows(list, unit) {
+    const word = unit === "points" ? "points" : "Gold";
+    const priced = list.filter(x => x.saved != null), rest = list.filter(x => x.saved == null).sort((a, b) => a.cost - b.cost);
+    const line = x => x.saved != null
+      ? `<b>${esc(x.name)}</b> <span class="small muted">· ${fmt(x.cost)} ${word} · saves ~${short(x.saved)} AP on your plan (${short(x.saved / x.cost)} AP per ${unit === "points" ? "point" : "gold"})</span>`
+      : `${esc(x.name)} <span class="small muted">· ${fmt(x.cost)} ${word}${x.helps.length ? ` · ${x.helps.join(", ")}` : x.desc ? ` · ${esc(x.desc.slice(0, 80))}` : ""}</span>`;
+    const top = priced[0] || null;
+    return { top, html: top ? line(top) : rest.length ? `Nothing here changes your plan's AP. Cheapest: ${line(rest[0])}` : "",
+      more: [...priced.slice(1).map(line), ...(rest.length ? [`<span class="muted">Can't be priced in AP (time, silver or comfort):</span>`] : []), ...rest.slice(0, 8).map(line)].join("<br>") };
+  }
+  function renderPerksNext() {
+    const sh = S.perkShop || {};
+    if (!sh.perks && !sh.supply) { $("perks-list").innerHTML = monoLi("Perks", `${getPage("Paste", "Open")} your <b>Perks</b> page and the <b>Farm Supply</b> perks page (in Town) to see which perk to get next.`); return; }
+    const n = perksNext(), pts = sh.perks && sh.perks.points;
+    const rowsFor = (unit, label, have) => { const r = perkRows(n[unit], unit); return r.html ? monoLi(label + (have != null ? ` <span class="small">(you have ${fmt(have)})</span>` : ""), r.html, r.more) : ""; };
+    $("perks-list").innerHTML = (sh.perks ? rowsFor("points", "With points", pts) : monoLi("With points", `<span class="muted">${getPage("Paste", "Open")} the Perks page</span>`))
+      + (sh.supply ? rowsFor("gold", "With gold", S.gold) : monoLi("With gold", `<span class="muted">${getPage("Paste", "Open")} the Farm Supply perks page (in Town)</span>`));
+  }
   // ---------- Reference (reference.js, built from knowledge/ by tools/build-reference.js) ----------
   // A small Markdown reader for the notes: headings, lists, tables, bold, code, links, [[other note]] links and
   // footnote sources. A heading ending "(spoiler)" folds its section behind a second "Spoiler" fold.
@@ -3778,7 +3949,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   function renderSteak() {
     const m = S.steakMarket, due = truffleCheckDue();
     $("steak-card").hidden = !m && !due;
-    if (!m) { const t = "Paste today's Steak Market page for a Truffle sell check."; $("steak-list").innerHTML = `<p class="small" style="margin:0">${t}</p>`; $("mono-steak").innerHTML = monoLi("Truffles", t); return; }
+    if (!m) { const t = getPage("Paste today's Steak Market page", "Open the Steak Market in the game") + " for a Truffle sell check."; $("steak-list").innerHTML = `<p class="small" style="margin:0">${t}</p>`; $("mono-steak").innerHTML = monoLi("Truffles", t); return; }
     const H = S.marketHistory || {}, today = gameDay(Date.now()) === gameDay(m.at);
     const pct = (list, v) => list.length ? Math.round(100 * list.filter(x => x < v).length / list.length) : null;
     const lines = (k, base) => {                                          // your history's 10th / 90th percentile, if any
@@ -3823,7 +3994,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       `<li><b>${r.name}: ${r.price}</b> <span class="tag ${r.cls}">${r.say}</span>${r.bar}${U.detail === "expanded"
         ? xpList([["Lines", r.info.filter(x => /buy at|sell from/.test(x))], ["Notes", r.info.filter(x => x && !/buy at|sell from/.test(x))]])
         : `<span class="small muted">${r.info.filter(Boolean).join(" · ")}</span>`}</li>`).join("")}</ul>` : "");
-    $("mono-steak").innerHTML = rows.map(r => monoLi(r.name, `<b>${r.mono}</b> <span class="small muted">${r.price}</span>${r.bar}`)).join("") + (old ? monoLi("Truffles", "Paste today's Steak Market page") : "");
+    $("mono-steak").innerHTML = rows.map(r => monoLi(r.name, `<b>${r.mono}</b> <span class="small muted">${r.price}</span>${r.bar}`)).join("") + (old ? monoLi("Truffles", getPage("Paste today's Steak Market page", "Open the Steak Market in the game")) : "");
   }
 
   // ---------- Silver goal ----------
@@ -4142,7 +4313,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     }
     // Only with no other way in, or when tossing is cheaper; today's free tosses only (rules.md).
     const free = S.perks.wwTosses || 0;
-    if (!free) { $("ww-list").innerHTML = `<p class="small muted">How many free tosses do you get a day? Paste your <b>Farm Supply</b> perks page from Town (it reads the Extra Wish perks) or set <b>Free wishing well tosses a day</b> in Setup → Your perks (3, up to 29 with perks, +1 for beta testers). Tosses that cost gold are never suggested.</p>`; return; }
+    if (!free) { $("ww-list").innerHTML = `<p class="small muted">How many free tosses do you get a day? ${getPage("Paste your <b>Farm Supply</b> perks page from Town", "Open the <b>Farm Supply</b> perks page in Town")} (it reads the Extra Wish perks) or set <b>Free wishing well tosses a day</b> in Setup → Your perks (3, up to 29 with perks, +1 for beta testers). Tosses that cost gold are never suggested.</p>`; return; }
     const worth = x => x.gather == null ? !x.otherWay : x.opts[0].cost != null && x.opts[0].cost < x.gather;
     const picks = rows.filter(x => worth(x) && x.opts[0].tosses / free <= 30)
       .sort((a, b) => a.opts[0].tosses - b.opts[0].tosses);                       // quickest to finish first
