@@ -1,7 +1,9 @@
 // ==UserScript==
 // @name         FarmRPG Next Steps: auto-read
 // @namespace    farmrpg-next-steps
-// @version      1.0.1
+// @version      1.1.0
+// @updateURL    https://molter0.github.io/FarmRPG-Next-Steps/farmrpg-auto-read.user.js
+// @downloadURL  https://molter0.github.io/FarmRPG-Next-Steps/farmrpg-auto-read.user.js
 // @description  Hands the text of each FarmRPG page you open to the FarmRPG Next Steps planner, so you don't have to copy and paste. Read-only: it loads nothing from FarmRPG, clicks nothing and changes nothing on the game's pages.
 // @match        https://farmrpg.com/*
 // @match        https://www.farmrpg.com/*
@@ -22,18 +24,21 @@
 (function () {
   "use strict";
   const KEY = "pages", MAX = 30;            // the last 30 game pages, one per address
+  const HERE = "here";                       // the page you are on now: { where, at }
 
   if (/(^|\.)farmrpg\.com$/.test(location.hostname)) game();
   else if (document.querySelector('meta[name="frp-planner"]')) planner();
 
   function game() {
-    let last = "", obs = null, quiet = null, cap = null;
+    let last = "", obs = null, quiet = null, cap = null, here = null;
     const keep = () => {
       if (document.hidden) return;
+      // The page you are on, even when its text hasn't changed: the planner's Here card and Checklist follow it
+      const where = location.hash || location.pathname + location.search;
+      if (!here || here.where !== where || Date.now() - here.at > 60e3) { here = { where, at: Date.now() }; GM_setValue(HERE, here); }
       const text = document.body && document.body.innerText;
       if (!text || !text.trim() || text === last) return;
       last = text;
-      const where = location.hash || location.pathname;
       const pages = GM_getValue(KEY, []).filter(p => p.where !== where);
       pages.push({ id: Date.now() + "-" + Math.random().toString(36).slice(2), where, at: Date.now(), text });
       GM_setValue(KEY, pages.slice(-MAX));
@@ -65,7 +70,10 @@
       GM_getValue(KEY, []).slice().sort((a, b) => a.at - b.at)  // oldest first: the newest has the last word
         .forEach(p => post({ type: "frp-auto-page", id: p.id, where: p.where, at: p.at, text: p.text }));
     };
-    post({ type: "frp-auto-hello" });
+    const where = () => { const h = GM_getValue(HERE, null); if (h) post({ type: "frp-auto-here", where: h.where, at: h.at }); };
+    post({ type: "frp-auto-hello", version: 2 });
+    where();
+    GM_addValueChangeListener(HERE, where);                 // light: sent even while this tab is hidden
     GM_addValueChangeListener(KEY, flush);
     document.addEventListener("visibilitychange", flush);
     flush();

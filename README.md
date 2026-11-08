@@ -16,6 +16,9 @@ what to plant, what your farm will soon overflow with, what to cook, and what to
 **Skip the copying (desktop):** install [`farmrpg-auto-read.user.js`](farmrpg-auto-read.user.js) in Tampermonkey or
 Violentmonkey and just play. Each game page you open is handed to the planner when its tab is in view; pages it doesn't
 read are skipped. The script only reads pages you open yourself: it loads nothing from FarmRPG and clicks nothing.
+With it on, a **Here** card above every tab gives the planner's advice for the game page you have open (Wishing Well
+tosses, an item's keep / toss / sell, a quest's next step, Kitchen, Steak Market, pets, farm, exploring), and the
+**Checklist** ticks the "look at" items (Item of the Day, Mercantile, gallery…) when you open those pages.
 
 Everything stays in your own browser: nothing you paste is uploaded or sent anywhere. Hover (or tap) the ⓘ marks for explanations.
 

@@ -203,6 +203,8 @@ header p { margin: 0; color: var(--muted); }
 #quick-ok { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: var(--good); font-weight: 700; opacity: 0; transition: opacity .15s; pointer-events: none; }
 #quick-ok.show { opacity: 1; }
 #quick-msg { max-width: 260px; }
+.here-card { border-left: 4px solid var(--good); }
+#here-body ul { margin: 4px 0 0; padding-left: 20px; }
 #quick-msg .note { margin: 0; }
 :root { --tm-bg: var(--surface); --tm-ink: var(--ink); --tm-line: var(--line); }
 button, input, textarea { font: inherit; color: inherit; }
@@ -398,6 +400,12 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   <div id="top-bar"><div id="truffle-strip" class="small" role="status" hidden></div><div id="pig-strip" class="small" role="status" hidden></div>
   <p id="fold-bar" class="small"><span id="fresh-line" class="muted" title="When the planner last read each page"></span><a href="#" data-fold-all="1">Collapse all</a> · <a href="#" data-fold-all="0">Expand all</a></p></div>
   <div id="stale-banner" class="small" hidden></div>
+  <section class="card mono here-card" id="here" aria-labelledby="h-here" aria-live="polite" hidden>
+    <div class="row" style="justify-content:space-between;align-items:baseline;gap:8px"><h2 id="h-here" style="margin:0"></h2>
+      <span class="small"><a href="#" id="here-more">More</a> <button type="button" id="here-x" class="small" title="Hide until you open another game page" aria-label="Hide the Here card">✕</button></span></div>
+    <ul class="mono-list" id="here-list"></ul>
+    <div id="here-body"></div>
+  </section>
   <details id="changes" class="card" hidden style="padding:10px 14px">
     <summary id="changes-sum"></summary>
     <p class="small muted" style="margin:6px 0">Ticked since your last paste; the next paste replaces them. <span class="tip" data-tip="Undo puts things back as they were before that tick, and undoes any ticks after it." aria-label="Undo puts things back as they were before that tick, and undoes any ticks after it." tabindex="0">ⓘ</span></p>
@@ -709,6 +717,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       <button type="button" data-layout="list" title="One column.">List</button>
     </div>
     <label class="small" style="display:block;margin:10px 0 0"><input type="checkbox" id="truffle-bar-on"> Truffle hold/sell line at the top of every tab</label>
+    <label class="small" style="display:block;margin:6px 0 0"><input type="checkbox" id="here-on"> Here card: advice for the game page you have open (needs auto-read)</label>
     <label class="small" style="display:block;margin:6px 0 0"><input type="checkbox" id="debug-on"> Debug</label>
     <h3>Best use order</h3>
     <div id="best-order"></div>
@@ -753,29 +762,29 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   <div id="debug-list"></div>
   <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
 </dialog>
-<script src="tools-menu.js?v=202611082203" defer></script>
-<script src="tower.js?v=202611082203"></script>
-<script src="parse.js?v=202611082203"></script>
-<script src="drops.js?v=202611082203"></script>
-<script src="reference.js?v=202611082203"></script>
-<script src="seasons.js?v=202611082203"></script>
-<script src="recipes.js?v=202611082203"></script>
-<script src="recipes-extra.js?v=202611082203"></script>
-<script src="items.js?v=202611082203"></script>
-<script src="upgrades.js?v=202611082203"></script>
-<script src="pets.js?v=202611082203"></script>
-<script src="savecode.js?v=202611082203"></script>
+<script src="tools-menu.js?v=202611082223" defer></script>
+<script src="tower.js?v=202611082223"></script>
+<script src="parse.js?v=202611082223"></script>
+<script src="drops.js?v=202611082223"></script>
+<script src="reference.js?v=202611082223"></script>
+<script src="seasons.js?v=202611082223"></script>
+<script src="recipes.js?v=202611082223"></script>
+<script src="recipes-extra.js?v=202611082223"></script>
+<script src="items.js?v=202611082223"></script>
+<script src="upgrades.js?v=202611082223"></script>
+<script src="pets.js?v=202611082223"></script>
+<script src="savecode.js?v=202611082223"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
-<script src="seeds.js?v=202611082203"></script>
-<script src="meals.js?v=202611082203"></script>
-<script src="ww.js?v=202611082203"></script>
-<script src="levels.js?v=202611082203"></script>
-<script src="quests.js?v=202611082203"></script>
-<script src="loot.js?v=202611082203"></script>
-<script src="trade.js?v=202611082203"></script>
-<script src="prices.js?v=202611082203"></script>
-<script src="npcs.js?v=202611082203"></script>
-<script src="engine.js?v=202611082203"></script>
+<script src="seeds.js?v=202611082223"></script>
+<script src="meals.js?v=202611082223"></script>
+<script src="ww.js?v=202611082223"></script>
+<script src="levels.js?v=202611082223"></script>
+<script src="quests.js?v=202611082223"></script>
+<script src="loot.js?v=202611082223"></script>
+<script src="trade.js?v=202611082223"></script>
+<script src="prices.js?v=202611082223"></script>
+<script src="npcs.js?v=202611082223"></script>
+<script src="engine.js?v=202611082223"></script>
 <script>
 (function () {
   const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
@@ -916,10 +925,12 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   window.addEventListener("message", e => {
     const d = e.data;
     if (e.origin !== location.origin || !d) return;
+    if (d.type === "frp-auto-here" && d.where) { hereSeen(d.where, d.at || Date.now()); return; }
     if (d.type === "frp-auto-hello") { autoOn = true; $("auto-off").hidden = true; $("auto-on").hidden = false; showAuto(); renderPasteToggle(); return; }
     if (d.type !== "frp-auto-page" || typeof d.text !== "string" || !d.id) return;
     const kind = detectPage(d.text);
     autoLog[d.id] = { where: d.where, at: d.at || Date.now(), kind, text: d.text };   // kept for its copy link (this tab only)
+    if (d.where && noteVisit(d.where, d.at || Date.now(), kind)) { save(); renderChecklist(); }
     showAuto();
     if (autoSeen.includes(d.id)) return;
     autoSeen = [...autoSeen, d.id].slice(-200);
@@ -1534,6 +1545,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     $("quests").hidden = !questList().length;
     if (questList().length) renderQuests(p);
     renderWW(p);
+    renderHere();
   }
   // Places the player can use this month: auto-detected from the paste, then their own ticks on top
   let W = null, C = null, O = null;
@@ -3463,12 +3475,16 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   const today = x => x && x.day === gameDay(Date.now());
   const townPlace = id => TOWN_OF[id] && today(S.town) ? S.town.places[TOWN_OF[id]] : null;
   const checkAuto = id => {
+    if (visitDone(id)) return true;
+    if (id === "phr") return today({ day: S.questsAt && gameDay(S.questsAt) }) && !(S.quests || []).some(q => q.section === "personal");
+    if (id === "special") return !!S.questsAt && gameDay(S.questsAt).slice(0, 7) === gameDay(Date.now()).slice(0, 7) && !(S.quests || []).some(q => q.section === "special");
     if (id === "bank") { const b = bankNeed(); return b.have != null && b.have >= b.need; }
     if (id === "farm") return today(S.farmToday) && !S.farmToday.todo.length;
     if (id === "slaughter" && S.pigs) { const t = pigToday(); return !(t && t.slaughter); }   // not a pig day, or already sent
     const t = townPlace(id); return !!t && !t.ready;
   };
   const checkHint = id => {
+    if (visitDone(id)) return `opened in the game ${VISIT_DONE[id] === "month" ? "this month" : "today"}`;
     if (id === "bank") {
       const b = bankNeed();
       if (b.have == null) return `keep ${short(b.need)} banked for the full ${short(b.cap)} a day at ${+(b.rate * 100).toFixed(2)}% (paste the Bank page to check)`;
@@ -3532,6 +3548,160 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     if (h) { const k = h.dataset.checkHide, set = new Set(S.checksHidden || []); set.has(k) ? set.delete(k) : set.add(k); S.checksHidden = [...set]; save(); renderChecklist(); return; }
     if (e.target.id === "check-show") { e.preventDefault(); checkShowHidden = !checkShowHidden; renderChecklist(); }
   });
+
+  // ---------- Here: advice for the game page you're on (auto-read) ----------
+  // The userscript says which game page is open (frp-auto-here) and hands over each page's text (frp-auto-page). Pages
+  // opened are logged (S.visits: game path → last time) so the Checklist can tick "look at" items, and the Here card
+  // above every tab shows the planner's advice for that place: what to decide there, not what the game already shows.
+  const gamePath = w => {
+    let s = String(w || "").replace(/^#!?\/?/, "").replace(/^\/+/, "");
+    try { s = decodeURIComponent(s.replace(/\+/g, " ")); } catch (e) {}
+    return (s || "index.php").toLowerCase();
+  };
+  const pathParam = (path, k) => { const m = path.match(new RegExp("[?&]" + k + "=([^&#]*)")); return m ? m[1] : null; };
+  let HERE = null, hereClosed = null;
+  const kindAt = {};                                                     // game path → kind of page last read there
+  function noteVisit(where, at, kind) {
+    const path = gamePath(where), v = S.visits || (S.visits = {});
+    if (kind) kindAt[path] = kind;
+    if (v[path] >= at) return false;
+    v[path] = at;
+    const old = Date.now() - 40 * 864e5;
+    for (const k of Object.keys(v)) if (v[k] < old) delete v[k];
+    return true;
+  }
+  function hereSeen(where, at) {
+    const changed = noteVisit(where, at);
+    if (!HERE || at >= HERE.at) HERE = { path: gamePath(where), at };
+    if (changed) { save(); renderChecklist(); }
+    renderHere();
+  }
+  // Opened today (or this month): matches the path with its query, or any query when the Checklist's path has none
+  const visited = (path, month) => {
+    const p = gamePath(path), now = gameDay(Date.now());
+    return Object.entries(S.visits || {}).some(([k, at]) => (k === p || (!p.includes("?") && k.split("?")[0] === p))
+      && (month ? gameDay(at).slice(0, 7) === now.slice(0, 7) : gameDay(at) === now));
+  };
+  // Checklist items that are only looking at a page: opening it is doing it
+  const VISIT_DONE = { iotd: "day", soap: "month", gallery: "month", merc: "month", newtemple: "month", dolls: "month", cosmetic: "month" };
+  const CHECK_PATH = Object.fromEntries(Object.values(CHECKS).flatMap(L => L.items.map(([id, , path]) => [id, path])));
+  const visitDone = id => !!VISIT_DONE[id] && visited(CHECK_PATH[id], VISIT_DONE[id] === "month");
+
+  // How many of an item your open quests need, down each chain up to 5 steps ahead (as the wishing well counts)
+  function questNeedOf(item) {
+    const hidden = new Set(S.questHidden || []), names = [];
+    let total = 0;
+    for (const q of S.quests || []) {
+      if (hidden.has(q.name)) continue;
+      let n = 0, first = null, ahead = 0;
+      for (let name = q.name, step = 0; name && step <= 5; step++) {
+        const d = QUESTS.quests[name];
+        if (!d) break;
+        for (const [i, k] of d.need) if (i === item) { n += k; if (!first) { first = name; ahead = step; } }
+        name = d.next && d.next[0];
+      }
+      if (n) { total += n; names.push(ahead ? `${esc(first)} (${ahead} ahead)` : esc(first)); }
+    }
+    return { total, names };
+  }
+  // What to do with an item: keep it for quests, toss it for something a quest needs, craft it on, gift or sell the rest.
+  // Only advice: the game page already shows the count and what it's used in.
+  function itemAdvice(item, p) {
+    const onHand = O ? O.onHand : {}, have = onHand[item] || 0, out = [];
+    const q = questNeedOf(item), W2 = (window.WW && WW.want) || {};
+    if (q.total) {
+      const miss = q.total - have;
+      out.push(monoLi("Quests", miss > 0
+        ? `<b>Short ${fmt(miss)}</b> for ${q.names.join(", ")}${itemEffort(item, miss)}`
+        : `<b>Keep ${fmt(q.total)}</b> for ${q.names.join(", ")}`));
+      const ww = miss > 0 && (W2[item] || []).map(([inp, ch]) => ({ inp, ch, have: onHand[inp] || 0 })).filter(o => o.have > 0)
+        .sort((a, b) => b.ch - a.ch)[0];
+      if (ww) out.push(monoLi("Wishing Well", `Toss <b>${esc(ww.inp)}</b> for it: ${ww.ch}% a toss, you have ${short(ww.have)}`));
+    }
+    let spare = Math.max(0, have - q.total);
+    // Tossing it gets something a quest is short of
+    if (spare) {
+      const gets = Object.entries(W2).map(([want, opts]) => {
+        const o = opts.find(([inp]) => inp === item); if (!o) return null;
+        const need = questNeedOf(want), miss = need.total - (onHand[want] || 0);
+        return miss >= 1 ? { want, ch: o[1], miss, tosses: Math.min(spare, Math.ceil(miss / (o[1] / 100))) } : null;
+      }).filter(Boolean).sort((a, b) => b.ch - a.ch);
+      if (gets.length) out.push(monoLi("Wishing Well", `Toss up to <b>${fmt(gets[0].tosses)}</b> for ${esc(gets[0].want)} (${gets[0].ch}% a toss; your quests are short ${fmt(gets[0].miss)})${
+        gets.length > 1 ? `<span class="small muted"> · also ${gets.slice(1, 3).map(g => esc(g.want)).join(", ")}</span>` : ""}`));
+    }
+    const tower = towerTipText(item, (p.items || {})[item]);
+    if (tower) out.push(monoLi("Tower", `${tower}: gather it rather than buying it, every one counts`));
+    if (spare) {
+      const keep = keepFor(item, p), price = sellPrice(item, p), gift = giftTo(item);
+      if (keep) out.push(monoLi("The rest", `<b>Keep ${short(spare)}</b>: ${keep}`));
+      else {
+        const sell = price != null ? `sell for ${short(price)} each (${short(price * spare)} silver)` : "";
+        const g = gift ? `gift to ${giftWho(gift)}` : "";
+        if (sell || g) out.push(monoLi("The rest", `<b>${short(spare)} spare</b>: ${[g, sell].filter(Boolean).join(", or ")}${sellNote(item, p)}`));
+      }
+    }
+    if (!S.inventory) out.push(monoLi("", `<span class="small muted">Open My Inventory once so the planner knows what you have.</span>`));
+    return out.join("");
+  }
+  let itemById = null;
+  const itemName = id => {
+    if (!itemById) itemById = Object.fromEntries(Object.entries(window.ITEMS || {}).map(([n, i]) => [i, n]));
+    return itemById[id] || null;
+  };
+  const questById = id => Object.keys(QUESTS.quests).find(n => QUESTS.quests[n].id === id) || null;
+  function herePage(path) {
+    const base = path.split("?")[0], kind = kindAt[path], p = player();
+    const mono = (id, title, go) => { const h = $(id) && $(id).innerHTML.trim(); return h ? { title, list: h, go } : null; };
+    if (base === "well.php") return S.quests && $("ww-list").innerHTML.trim() ? { title: "Wishing Well", html: $("ww-list").innerHTML, go: ["quests", "ww"] }
+      : { title: "Wishing Well", html: `<p class="small muted" style="margin:0">Open Help Needed so the planner knows what your quests need from the well.</p>` };
+    if (/kitchen/.test(base)) return mono("mono-kitchen", "Kitchen", ["best", "kitchen"]);
+    if (kind === "steak" || base === "steakmarket.php") return mono("mono-steak", "Steak Market", ["check", "steak-card"]);
+    if (kind === "pets") return $("pets-card").hidden ? null : mono("mono-pets", "Pet items", ["best", "pets-card"]);
+    if (kind === "pigpen" || base === "pigpen.php") return $("pig-strip").hidden ? null : { title: "Pig Pen", html: `<p style="margin:0">${$("pig-strip").innerHTML}</p>` };
+    if (kind === "farm" || base === "xfarm.php") return mono("mono-plant", "Your farm", ["best", "plant"]);
+    if (kind === "quests" || base === "quests.php") return mono("mono-quests", "Help Needed", ["quests", "quests"]);
+    if (/^(area|explore|fishing|fish)\.php$/.test(base)) {
+      const h = [$("mono-best").innerHTML, $("mono-drinks").innerHTML].join("").trim();
+      return h ? { title: base.startsWith("fish") ? "Fishing" : "Exploring", list: h, go: ["best", "best"] } : null;
+    }
+    if (base === "item.php") {
+      const name = itemName(+pathParam(path, "id"));
+      return name && S.mastery ? { title: esc(name), list: itemAdvice(name, p) } : null;
+    }
+    if (base === "quest.php") {
+      const name = questById(+pathParam(path, "id")), d = name && QUESTS.quests[name];
+      if (!d || !S.mastery || !C) return null;
+      const n = questNeeds(d, p), t = questTarget({ name, npc: d.npc }, n), x = n.missing.length && stepsFor(t)[0];
+      return { title: esc(name), list: x ? monoStep("Next step", t, x, `<p style="margin:4px 0 0">Still needs ${n.missing.map(m => `${short(m.left)} ${esc(m.item)}`).join(", ")}.</p>`)
+        : monoLi("Ready", "You have everything it needs: hand it in"), go: ["quests", "quests"] };
+    }
+    if (base === "comm.php" && !pathParam(path, "monthly") && S.comm && today(S.comm) && S.comm.daily && S.mastery) {
+      const g = S.comm.daily;
+      return { title: `Community Center: ${esc(g.item)}`, list: itemAdvice(g.item, p) };
+    }
+    return null;
+  }
+  function renderHere() {
+    const sec = $("here"), h = HERE;
+    const page = h && !U.hereOff && autoOn && Date.now() - h.at < 30 * 60e3 && h.path !== hereClosed && herePage(h.path);
+    sec.hidden = !page || !(page.list || page.html);
+    if (sec.hidden) return;
+    $("h-here").innerHTML = `<span class="muted" style="font-weight:400">Here:</span> ${page.title}`;
+    $("here-more").hidden = !page.go;
+    if (page.go) { $("here-more").dataset.tab = page.go[0]; $("here-more").dataset.card = page.go[1]; }
+    $("here-list").innerHTML = page.list || "";
+    $("here-body").innerHTML = page.html || "";
+    // A copy of other cards' advice: their buttons belong to those cards
+    sec.querySelectorAll("#here-list .mono-btns, #here-list button, #here-body button").forEach(e => e.remove());
+    sec.querySelectorAll("#here-list [id], #here-body [id]").forEach(e => e.removeAttribute("id"));
+  }
+  $("here-more").addEventListener("click", e => {
+    e.preventDefault();
+    showTab(e.currentTarget.dataset.tab);
+    const c = $(e.currentTarget.dataset.card); if (c) c.scrollIntoView({ block: "start" });
+  });
+  $("here-x").addEventListener("click", () => { hereClosed = HERE && HERE.path; renderHere(); });
+  setInterval(() => { if (HERE && !document.hidden) renderHere(); }, 60e3);   // the card goes away 30 min after the last page
 
   // ---------- Reference (reference.js, built from knowledge/ by tools/build-reference.js) ----------
   // A small Markdown reader for the notes: headings, lists, tables, bold, code, links, [[other note]] links and
@@ -4759,9 +4929,11 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     document.querySelectorAll("[data-detail]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.detail === U.detail)));
     document.querySelectorAll("[data-layout]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.layout === U.layout)));
     $("truffle-bar-on").checked = U.truffleBar !== false;
+    $("here-on").checked = !U.hereOff;
     $("debug-on").checked = !!U.debug;
   }
   $("debug-on").addEventListener("change", e => { U.debug = e.target.checked; if (U.debug) U.debugSeen = []; saveU(); });
+  $("here-on").addEventListener("change", e => { U.hereOff = !e.target.checked; saveU(); renderHere(); });
   $("truffle-bar-on").addEventListener("change", e => { U.truffleBar = e.target.checked; U.truffleHideUntil = 0; saveU(); renderTruffleStrip(); });
   let gearFrom = null;
   const openApp = on => {
