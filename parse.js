@@ -44,9 +44,12 @@
     const tm = plain.match(/The Tower\b.{0,120}?Unused Points:\s*([\d,]+).{0,120}?Level\s+([\d,]+)/);
     if (tm) tower = { ak: toInt(tm[1]), level: toInt(tm[2]) };
 
+    // Skill levels from the "My skills" block when it's there: other text on the page (a recipe's "Crafting Level 5")
+    // must not win just by coming first
+    const skillText = plain.includes("My skills") ? plain.slice(plain.indexOf("My skills")) : plain;
     const skills = {};
     for (const s of SKILLS) {
-      const sm = plain.match(new RegExp("\\b" + s + " Level (\\d+)"));
+      const sm = skillText.match(new RegExp("\\b" + s + " Level (\\d+)"));
       if (sm) skills[s] = toInt(sm[1]);
     }
 
@@ -594,7 +597,10 @@
     { const b = parseBuilding(text); if (b.buildings.length || b.cap) return "building"; }
     if (/Around Your Farm/i.test(text)) return "farm";
     if (/cannot have more than [\d,]+ of any single thing|Inventory Stats/.test(text)) return "inventory";
-    if (/[\d,]+\s*\/\s*([\d,]+|∞)\s*Progress/.test(text)) return "mastery";
+    // Mastery Progress: many "n / m Progress" lines, or its "So far, you have N items Mastered" line. A single progress
+    // line is an item's own page (its mastery bar), which auto-read hands over too: that must not replace the mastery list
+    if ((String(text).match(/[\d,]+\s*\/\s*([\d,]+|∞)\s*Progress/g) || []).length >= 5
+      || /[\d,]+ items Mastered, [\d,]+ items Grand Mastered/.test(text)) return "mastery";
     // One request's page carries the Help Needed sidebar, so check for its own headings first
     if (/^\s*Items Requested\s*$/im.test(text) && /^\s*Rewards\s*$/im.test(text)) return "request";
     // The Town page last: its list also shows on the Bank and Temple pages (wide screens), which are read first

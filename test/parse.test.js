@@ -297,3 +297,14 @@ console.log("parse tests passed");
   assert.strictEqual(detectPage(t), "craftworks");
   assert.deepStrictEqual(parseCraftworks(t), { items: [{ name: "Twine", paused: false }, { name: "Rope", paused: true }, { name: "Coal Thing", paused: false }], slots: 13 });
 }
+
+// Auto-read hands over every page: an item's own page (one mastery bar, a recipe's level) is not the Mastery page,
+// and a skill level elsewhere on the Mastery page doesn't beat the "My skills" block
+{
+  const { detectPage } = require("../parse.js"), nl = "\n";
+  const item = ["Twine", "Crafting Level 5", "Mastery", "1,234 / 10,000 Progress", "You have 40"].join(nl);
+  assert.notStrictEqual(detectPage(item), "mastery");
+  assert.strictEqual(detectPage(text), "mastery");
+  const extra = parseMastery(["Requires Crafting Level 5", text].join(nl));
+  assert.strictEqual(extra.skills.Crafting, 99);
+}
