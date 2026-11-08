@@ -308,3 +308,15 @@ console.log("parse tests passed");
   const extra = parseMastery(["Requires Crafting Level 5", text].join(nl));
   assert.strictEqual(extra.skills.Crafting, 99);
 }
+
+// Craftworks as auto-read sees it: inventory lines under each item, the buttons on their own lines (made-up items)
+{
+  const { detectPage, parseCraftworks } = require("../parse.js"), nl = "\n";
+  const t = ["Items added to the Craftworks will be crafted automatically anytime the resources are available in the order you set below. You can add up to 10 items total to the Craftworks.",
+    "ADJUST ORDER", "CRAFTWORKS ITEMS (3)", "play Play All", "pause Pause All", "trash Remove All",
+    "1", "Twine", "Inventory: 7", "Out of: Straw", "pause", "Remove",
+    "2", "Rope", "Inventory: 30", "play", "Remove",
+    "3", "Hammer", "Inventory: 120", "pause", "Remove", "SAVE ITEM SET", "MY ITEM SETS"].join(nl);
+  assert.strictEqual(detectPage(t), "craftworks");
+  assert.deepStrictEqual(parseCraftworks(t), { items: [{ name: "Twine", paused: false }, { name: "Rope", paused: true }, { name: "Hammer", paused: false }], slots: 10 });
+}

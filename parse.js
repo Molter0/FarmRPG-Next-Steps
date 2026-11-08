@@ -423,9 +423,17 @@
     const lines = String(text || "").split(/\r?\n/).map(clean).filter(Boolean), items = [];
     const at = lines.findIndex(l => /Craftworks Items \(\d+\)$/i.test(l));
     if (at < 0) return null;
+    // Each item: its place number, its name, then (on the live page) "Inventory: N" / "Out of: X" lines, then its
+    // buttons, ending "Remove": "pauseRemove" on one line in a copy, "pause" / "Remove" on two in auto-read's text.
+    // A "play" button means the item is paused.
     for (let k = at + 1; k < lines.length - 2; k++) {
       if (/^Save Item Set$/i.test(lines[k])) break;
-      if (/^\d+$/.test(lines[k]) && /Remove$/i.test(lines[k + 2])) { items.push({ name: lines[k + 1], paused: /^play/i.test(lines[k + 2]) }); k += 2; }
+      if (!/^\d+$/.test(lines[k])) continue;
+      const end = lines.slice(k + 2, k + 7).findIndex(l => /Remove$/i.test(l));
+      if (end < 0) continue;
+      const btns = lines.slice(k + 2, k + 3 + end).filter(l => /^(play|pause)/i.test(l));
+      items.push({ name: lines[k + 1], paused: btns.some(l => /^play/i.test(l)) });
+      k += 2 + end;
     }
     const s = String(text).match(/add up to ([\d,]+) items total/i);
     return { items, slots: s ? toInt(s[1]) : null };
