@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="frp-planner" content="1">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FarmRPG Next Steps</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -395,7 +396,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     <button type="button" role="tab" data-go="setup" title="Paste your game pages, and check your perks, general settings, places and daily production. Save or load your planner here too.">Setup</button>
   </nav>
   <div id="top-bar"><div id="truffle-strip" class="small" role="status" hidden></div><div id="pig-strip" class="small" role="status" hidden></div>
-  <p id="fold-bar" class="small"><a href="#" data-fold-all="1">Collapse all</a> · <a href="#" data-fold-all="0">Expand all</a></p></div>
+  <p id="fold-bar" class="small"><span id="fresh-line" class="muted" title="When the planner last read each page"></span><a href="#" data-fold-all="1">Collapse all</a> · <a href="#" data-fold-all="0">Expand all</a></p></div>
   <div id="stale-banner" class="small" hidden></div>
   <details id="changes" class="card" hidden style="padding:10px 14px">
     <summary id="changes-sum"></summary>
@@ -541,6 +542,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       <input type="file" id="file-in" accept=".mht,.mhtml,.webarchive,.html,.htm,multipart/related,message/rfc822,application/x-webarchive,text/html" hidden>
       <span class="small muted">Phone: save the game page (Chrome: ⋮ → Download), then upload it.</span>
     </div>
+    <p class="small" id="auto-read" style="margin:8px 0 0"><span id="auto-off">Skip the copying: install <a href="farmrpg-auto-read.user.js">the auto-read userscript</a> (needs <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener">Tampermonkey</a> or <a href="https://violentmonkey.github.io/" target="_blank" rel="noopener">Violentmonkey</a>), then just play: each game page you open updates the planner.</span><span id="auto-on" hidden><b class="ok">✓</b> Auto-read is on: game pages you open update the planner.</span> <span class="tip" data-tip="It reads only the pages you open yourself, the same text Ctrl+A, Ctrl+C would copy. It loads nothing from FarmRPG, presses nothing in the game and changes nothing on its pages.&#10;Mastery Progress: open every tier, as for a paste.&#10;Pages read while this tab was closed come in when you open it.&#10;Desktop browsers (and Firefox or Kiwi on Android). Not in the Steam app." aria-label="It reads only the pages you open yourself, the same text Ctrl+A, Ctrl+C would copy. It loads nothing from FarmRPG, presses nothing in the game and changes nothing on its pages. Mastery Progress: open every tier. Pages read while this tab was closed come in when you open it. Not in the Steam app." tabindex="0">ⓘ</span></p>
     <div id="status" aria-live="polite"></div>
     <ul class="loaded" id="loaded"></ul>
     <div class="row" style="margin-top:10px">
@@ -751,29 +753,29 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   <div id="debug-list"></div>
   <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
 </dialog>
-<script src="tools-menu.js?v=202611031559" defer></script>
-<script src="tower.js?v=202611031559"></script>
-<script src="parse.js?v=202611031559"></script>
-<script src="drops.js?v=202611031559"></script>
-<script src="reference.js?v=202611031559"></script>
-<script src="seasons.js?v=202611031559"></script>
-<script src="recipes.js?v=202611031559"></script>
-<script src="recipes-extra.js?v=202611031559"></script>
-<script src="items.js?v=202611031559"></script>
-<script src="upgrades.js?v=202611031559"></script>
-<script src="pets.js?v=202611031559"></script>
-<script src="savecode.js?v=202611031559"></script>
+<script src="tools-menu.js?v=202611082203" defer></script>
+<script src="tower.js?v=202611082203"></script>
+<script src="parse.js?v=202611082203"></script>
+<script src="drops.js?v=202611082203"></script>
+<script src="reference.js?v=202611082203"></script>
+<script src="seasons.js?v=202611082203"></script>
+<script src="recipes.js?v=202611082203"></script>
+<script src="recipes-extra.js?v=202611082203"></script>
+<script src="items.js?v=202611082203"></script>
+<script src="upgrades.js?v=202611082203"></script>
+<script src="pets.js?v=202611082203"></script>
+<script src="savecode.js?v=202611082203"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
-<script src="seeds.js?v=202611031559"></script>
-<script src="meals.js?v=202611031559"></script>
-<script src="ww.js?v=202611031559"></script>
-<script src="levels.js?v=202611031559"></script>
-<script src="quests.js?v=202611031559"></script>
-<script src="loot.js?v=202611031559"></script>
-<script src="trade.js?v=202611031559"></script>
-<script src="prices.js?v=202611031559"></script>
-<script src="npcs.js?v=202611031559"></script>
-<script src="engine.js?v=202611031559"></script>
+<script src="seeds.js?v=202611082203"></script>
+<script src="meals.js?v=202611082203"></script>
+<script src="ww.js?v=202611082203"></script>
+<script src="levels.js?v=202611082203"></script>
+<script src="quests.js?v=202611082203"></script>
+<script src="loot.js?v=202611082203"></script>
+<script src="trade.js?v=202611082203"></script>
+<script src="prices.js?v=202611082203"></script>
+<script src="npcs.js?v=202611082203"></script>
+<script src="engine.js?v=202611082203"></script>
 <script>
 (function () {
   const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
@@ -895,6 +897,41 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     $("quick-ok").classList.toggle("show", ok);
     $("quick-msg").innerHTML = msg; $("quick-msg").hidden = !msg;              // what was read (or what went wrong)
     quickT = setTimeout(() => { $("quick-ok").classList.remove("show"); $("quick-msg").hidden = true; }, /data-undo-paste/.test(msg) ? 30000 : ok ? 5000 : 10000);
+  });
+  // ---------- Auto-read (farmrpg-auto-read.user.js) ----------
+  // The userscript keeps the text of each game page the player opens and hands it to this tab (same window, so same
+  // origin) when the tab is in view. Each page is read once; pages this planner doesn't read are skipped. The Setup line
+  // lists the latest few, read or skipped, so a page that didn't take shows up there.
+  const AUTO_SEEN = "frp-auto-seen";
+  let autoSeen = [], autoLog = {}, autoOn = false;
+  try { autoSeen = JSON.parse(localStorage.getItem(AUTO_SEEN)) || []; } catch (e) {}
+  const autoWhere = w => String(w || "a game page").replace(/^#!?\/?/, "").replace(/\?.*$/, "").replace(/\.php$/, "") || "home";
+  const showAuto = () => {
+    const hm = t => new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const last = Object.values(autoLog).sort((a, b) => b.at - a.at).slice(0, 4);
+    $("auto-on").innerHTML = `<b class="ok">✓</b> Auto-read is on. ` + (last.length
+      ? "Latest game pages: " + last.map(p => `${esc(autoWhere(p.where))} ${hm(p.at)} → ${p.kind ? esc(PAGE_NAME[p.kind] || p.kind) : `<span class="muted">skipped (not a page the planner reads)</span>`} <a href="#" data-auto-copy="${esc(p.id)}" title="Copy the text that came in, to report a page that reads wrong">copy</a>`).join(" · ")
+      : "No game pages have come in yet: open one in FarmRPG, wait 2 seconds, then come back to this tab.");
+  };
+  window.addEventListener("message", e => {
+    const d = e.data;
+    if (e.origin !== location.origin || !d) return;
+    if (d.type === "frp-auto-hello") { autoOn = true; $("auto-off").hidden = true; $("auto-on").hidden = false; showAuto(); renderPasteToggle(); return; }
+    if (d.type !== "frp-auto-page" || typeof d.text !== "string" || !d.id) return;
+    const kind = detectPage(d.text);
+    autoLog[d.id] = { where: d.where, at: d.at || Date.now(), kind, text: d.text };   // kept for its copy link (this tab only)
+    showAuto();
+    if (autoSeen.includes(d.id)) return;
+    autoSeen = [...autoSeen, d.id].slice(-200);
+    try { localStorage.setItem(AUTO_SEEN, JSON.stringify(autoSeen)); } catch (err) {}
+    if (!kind) return;                                                   // the home page, chat, a shop…: not for us
+    const q = $("quick-paste"); q.value = d.text.slice(0, 5e6); q.dispatchEvent(new Event("input"));
+  });
+  $("auto-on").addEventListener("click", e => {
+    const a = e.target.closest("[data-auto-copy]"), p = a && autoLog[a.dataset.autoCopy];
+    if (!p) return;
+    e.preventDefault();
+    navigator.clipboard.writeText(p.text || "").then(() => { a.textContent = "copied ✓"; }, () => { a.textContent = "couldn't copy"; });
   });
   $("paste-clear").addEventListener("click", () => { pasteStop(); $("paste").value = ""; $("status").innerHTML = ""; $("paste-clear").hidden = true; $("paste").focus(); });
   $("paste").addEventListener("input", () => {
@@ -1560,25 +1597,41 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   });
   const tower100 = ak => Math.max(0, TOWER.akPerLevel - ak);
 
-  // Paste section can be hidden; then one line flags week-old Mastery, Inventory or Help Needed pastes.
+  // "5 min ago", "3 h ago", "2 days ago"; short: "5 min", "3 h", "2 d"
+  function agoText(t, short) {
+    const min = Math.max(0, Math.round((Date.now() - t) / 6e4)), h = Math.round(min / 60), d = Math.round(h / 24);
+    if (min < 1) return "just now";
+    const s = min < 60 ? `${min} min` : h < 48 ? `${h} h` : short ? `${d} d` : `${d} days`;
+    return short ? s : s + " ago";
+  }
+  setInterval(() => { if (!document.hidden) renderPasteToggle(); }, 60e3);   // keep the ages current
+  // Paste section can be hidden; then one line flags old Mastery, Inventory or Help Needed pages.
   function renderPasteToggle() {
     const hidden = !!(S.ui && S.ui.pasteHidden);
     $("paste-body").hidden = hidden;
     $("paste-summary").hidden = !hidden;
     $("paste-toggle").textContent = hidden ? "Show" : "Hide";
     $("paste-toggle").setAttribute("aria-expanded", String(!hidden));
-    const week = 7 * 864e5, now = Date.now();
-    const pages = [["Mastery Progress", S.mastery && S.mastery.at], ["My Inventory", S.inventory && S.inventory.at], ["Help Needed", S.questsAt]];
-    const old = pages.filter(([, at]) => !at || now - at > week)
-      .map(([n, at]) => at ? `${n} is ${Math.floor((now - at) / 864e5)} days old` : `${n} hasn't been pasted`);
+    // With auto-read a refresh is just opening the page in the game, so flag pages sooner: Inventory and Help Needed
+    // after a day, Mastery (every tier to open) after 3 days. Pasting by hand: after a week.
+    const day = 864e5, now = Date.now(), auto = autoOn;
+    const pages = [["Mastery Progress", S.mastery && S.mastery.at, auto ? 3 * day : 7 * day, "Mastery"],
+      ["My Inventory", S.inventory && S.inventory.at, auto ? day : 7 * day, "Inventory"], ["Help Needed", S.questsAt, auto ? day : 7 * day, "Help Needed"]];
+    const old = pages.filter(([, at, limit]) => !at || now - at > limit)
+      .map(([n, at]) => at ? `${n} was read ${agoText(at)}` : `${n} hasn't been read yet`);
+    // Next to Collapse all, on every tab: how fresh the three main pages are
+    $("fresh-line").innerHTML = pages.some(p => p[1]) ? pages.filter(p => p[1]).map(([, at, limit, n]) =>
+      `${n} <span class="${now - at > limit ? "bad" : ""}">${agoText(at, true)}</span>`).join(" · ") + " · " : "";
     // Shown under the tabs on every tab (only once there's a Mastery paste, so a brand-new page isn't nagging)
     const truffles = truffleCheckDue();
     $("stale-banner").hidden = !((old.length && S.mastery) || truffles);
-    $("stale-banner").innerHTML = (old.length && S.mastery ? `<div class="note" style="margin:0 0 12px">${old.join("; ")}. Paste a fresh copy in <a href="#" data-go="setup">Setup</a> when you can.</div>` : "") +
+    $("stale-banner").innerHTML = (old.length && S.mastery ? `<div class="note" style="margin:0 0 12px">${old.join("; ")}. ${auto
+      ? "Open it in the game and the planner picks it up."
+      : `Paste a fresh copy in <a href="#" data-go="setup">Setup</a> when you can.`}</div>` : "") +
       (truffles ? `<div class="note" style="margin:0 0 12px">Truffle prices change at reset. For today's sell check, paste the Steak Market page (Town › Steak Market) in the quick paste box.</div>` : "");
     if (!hidden) return;
     $("paste-summary").innerHTML = old.length
-      ? `<span class="muted">Some pastes are over a week old (see the note above).</span>`
+      ? `<span class="muted">Some pages are getting old (see the note above).</span>`
       : `<span class="muted">Your pastes are up to date.</span>`;
   }
   $("paste-toggle").addEventListener("click", () => {
@@ -1589,7 +1642,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   function renderLoaded(p) {
     renderPasteToggle();
     const m = S.mastery, inv = S.inventory;
-    const ago = t => { const h = Math.round((Date.now() - t) / 36e5); return h < 1 ? "just now" : h < 48 ? `${h} h ago` : `${Math.round(h / 24)} days ago`; };
+    const ago = t => agoText(t);
     const li = [];
     // Typed numbers win over the paste: say so, so a stray edit in the boxes below is easy to spot
     const typed = k => S.manual[k] != null && m && m.tower && S.manual[k] !== m.tower[k] ? ` (typed below; your paste said ${fmt(m.tower[k])})` : "";
