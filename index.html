@@ -526,7 +526,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   </section>
   <section class="card mono" data-tab="best" id="perks-next" aria-labelledby="h-perks-next">
     <h2 id="h-perks-next">Perks to get next</h2>
-    <p class="small muted" style="margin:0">What each perk you don't have saves on your plan (your open quests and next AK masteries), per point or gold. <span class="tip" data-tip="Priced by re-running your plan with the perk: Resource Saver, nets and the Farm Supply items that change what things cost. Perks that save time, silver or clicks can't be put in AP; they're listed after, cheapest first." aria-label="Priced by re-running your plan with the perk. Perks that save time, silver or clicks are listed after, cheapest first." tabindex="0">ⓘ</span></p>
+    <p class="small muted" style="margin:0">Which perk speeds you up most per point or gold: days off your slow grinds, plus AP saved on your open quests and next AK masteries. <span class="tip" data-tip="Each perk is tried on your plan: your slow grinds are re-timed with it (faster crops, more per harvest, Grape Juice, a bigger cap, Resource Saver), and your quests and AK picks re-priced in AP. Days count as AP by your setting An hour of waiting feels like … minutes of play. XP perks for skills at 99 are left out. Perks the planner can't measure (stamina, silver, comfort) come after." aria-label="Priced by re-running your plan with the perk. Perks that save time, silver or clicks are listed after, cheapest first." tabindex="0">ⓘ</span></p>
     <ul class="mono-list" id="perks-list"></ul>
   </section>
 
@@ -768,29 +768,29 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   <div id="debug-list"></div>
   <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
 </dialog>
-<script src="tools-menu.js?v=202611082250" defer></script>
-<script src="tower.js?v=202611082250"></script>
-<script src="parse.js?v=202611082250"></script>
-<script src="drops.js?v=202611082250"></script>
-<script src="reference.js?v=202611082250"></script>
-<script src="seasons.js?v=202611082250"></script>
-<script src="recipes.js?v=202611082250"></script>
-<script src="recipes-extra.js?v=202611082250"></script>
-<script src="items.js?v=202611082250"></script>
-<script src="upgrades.js?v=202611082250"></script>
-<script src="pets.js?v=202611082250"></script>
-<script src="savecode.js?v=202611082250"></script>
+<script src="tools-menu.js?v=202611090826" defer></script>
+<script src="tower.js?v=202611090826"></script>
+<script src="parse.js?v=202611090826"></script>
+<script src="drops.js?v=202611090826"></script>
+<script src="reference.js?v=202611090826"></script>
+<script src="seasons.js?v=202611090826"></script>
+<script src="recipes.js?v=202611090826"></script>
+<script src="recipes-extra.js?v=202611090826"></script>
+<script src="items.js?v=202611090826"></script>
+<script src="upgrades.js?v=202611090826"></script>
+<script src="pets.js?v=202611090826"></script>
+<script src="savecode.js?v=202611090826"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
-<script src="seeds.js?v=202611082250"></script>
-<script src="meals.js?v=202611082250"></script>
-<script src="ww.js?v=202611082250"></script>
-<script src="levels.js?v=202611082250"></script>
-<script src="quests.js?v=202611082250"></script>
-<script src="loot.js?v=202611082250"></script>
-<script src="trade.js?v=202611082250"></script>
-<script src="prices.js?v=202611082250"></script>
-<script src="npcs.js?v=202611082250"></script>
-<script src="engine.js?v=202611082250"></script>
+<script src="seeds.js?v=202611090826"></script>
+<script src="meals.js?v=202611090826"></script>
+<script src="ww.js?v=202611090826"></script>
+<script src="levels.js?v=202611090826"></script>
+<script src="quests.js?v=202611090826"></script>
+<script src="loot.js?v=202611090826"></script>
+<script src="trade.js?v=202611090826"></script>
+<script src="prices.js?v=202611090826"></script>
+<script src="npcs.js?v=202611090826"></script>
+<script src="engine.js?v=202611090826"></script>
 <script>
 (function () {
   const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parseWorkshop, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
@@ -920,7 +920,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   // origin) when the tab is in view. Each page is read once; pages this planner doesn't read are skipped. The Setup line
   // lists the latest few, read or skipped, so a page that didn't take shows up there.
   const AUTO_SEEN = "frp-auto-seen";
-  let autoSeen = [], autoLog = {}, autoOn = false;
+  let autoSeen = [], autoLog = {}, autoOn = false, autoVersion = 0;
   // An instruction in the right words: paste the page, or (auto-read on) just open it in the game
   const getPage = (paste, open) => autoOn ? open : paste;
   try { autoSeen = JSON.parse(localStorage.getItem(AUTO_SEEN)) || []; } catch (e) {}
@@ -928,7 +928,12 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   const showAuto = () => {
     const hm = t => new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     const last = Object.values(autoLog).sort((a, b) => b.at - a.at).slice(0, 4);
-    $("auto-on").innerHTML = `<b class="ok">✓</b> Auto-read is on. ` + (last.length
+    // Scripts before 1.1.0 say hello without a version and never say which page is open: no Here card, no Checklist ticks
+    const old = autoVersion < 2 ? `<span class="bad">Your auto-read script is out of date:</span> <a href="farmrpg-auto-read.user.js">reinstall it</a> (then reload your FarmRPG tab) for the Here card and Checklist ticks. ` : "";
+    // The page you're on (from scripts 1.1.0 on): says whether the Here card has advice for it, to tell "not working" from "nothing to say"
+    const here = autoVersion >= 2 ? (HERE ? `You're on <b>${esc(autoWhere(HERE.path))}</b>: ${herePage(HERE.path) ? "advice in the Here card above every tab" : "no Here advice for this page"}. `
+      : "Open any game page to see the Here card. ") : "";
+    $("auto-on").innerHTML = `<b class="ok">✓</b> Auto-read is on. ` + old + here + (last.length
       ? "Latest game pages: " + last.map(p => `${esc(autoWhere(p.where))} ${hm(p.at)} → ${p.kind ? esc(PAGE_NAME[p.kind] || p.kind) : `<span class="muted">skipped (nothing the planner reads)</span>`} <a href="#" data-auto-copy="${esc(p.id)}" title="Copy the text that came in, to report a page that reads wrong">copy</a>`).join(" · ")
       : "No game pages have come in yet: open one in FarmRPG, wait 2 seconds, then come back to this tab.");
   };
@@ -936,7 +941,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     const d = e.data;
     if (e.origin !== location.origin || !d) return;
     if (d.type === "frp-auto-here" && d.where) { hereSeen(d.where, d.at || Date.now()); return; }
-    if (d.type === "frp-auto-hello") { autoOn = true; document.body.classList.add("auto"); $("auto-off").hidden = true; $("auto-on").hidden = false; showAuto(); render(false); return; }
+    if (d.type === "frp-auto-hello") { autoOn = true; autoVersion = d.version || 1; document.body.classList.add("auto"); $("auto-off").hidden = true; $("auto-on").hidden = false; showAuto(); render(false); return; }
     if (d.type !== "frp-auto-page" || typeof d.text !== "string" || !d.id) return;
     const kind = detectPage(d.text);
     autoLog[d.id] = { where: d.where, at: d.at || Date.now(), kind, text: d.text };   // kept for its copy link (this tab only)
@@ -1580,7 +1585,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     renderHere();
   }
   // Places the player can use this month: auto-detected from the paste, then their own ticks on top
-  let W = null, C = null, O = null, PASSIVE = [];
+  let W = null, C = null, O = null, PASSIVE = [], GRIND_ROWS = [];
   // "Tower" tag whose tip (hover or tap) names the Tower levels that still need this item, e.g. "Needed for Tower 235 (Mega Mastery)"
   const towerTipText = (item, have) => {
     const all = (O && O.towerUse[item]) || [], open = all.filter(u => (have || 0) < (u.tier === "mm" ? 1e6 : 1e5));
@@ -1771,7 +1776,8 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     const gain = c => p.noTower ? MASTERY_REWARD[c.tier] : `+${c.ak} AK`;
     for (const c of ap.known.slice(0, 6)) {
       if (cands.some(x => x.item === c.item)) continue;
-      cands.push({ t: `Finish ${esc(c.item)} ${tierName(c.tier)}`, blocks: [{ label: `${fmt(c.left)} more · ${gain(c)}${c.effort.how === "craft" || c.effort.how === "cook" ? ` · ${c.effort.how}` : ""}`, items: todoLines(c.effort) }], cost: c.effort.amount, hours: c.hours || 0, item: c.item, done: doneBtn("mastery", { name: c.item, tier: c.tier }),
+      cands.push({ t: `Finish ${esc(c.item)} ${tierName(c.tier)}`, blocks: [{ label: `${fmt(c.left)} more · ${gain(c)}${c.effort.how === "craft" || c.effort.how === "cook" ? ` · ${c.effort.how}` : ""}`, items: todoLines(c.effort) }], more: outletText(c.item, c.left, c.effort.amount),
+        cost: c.effort.amount, hours: c.hours || 0, item: c.item, done: doneBtn("mastery", { name: c.item, tier: c.tier }),
         target: masteryTarget(c.item, c.tier, c.left, c.effort),
         xp: { why: `${gain(c)}${c.tower && c.tower.length ? ` · Tower ${c.tower.map(u => u.level).join(", ")}` : ""}`, needs: `${fmt(c.left)} more${c.effort.how === "craft" || c.effort.how === "cook" ? `, ${c.effort.how}ed` : ""}`, where: todoLines(c.effort) } });
     }
@@ -1872,7 +1878,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     }
     if (!top && waiting) [top, topStep] = waiting;
     if (top) mlines.push(monoStep(`Do this next · ${top.t}`, top.target, topStep,
-      waiting && waiting[0] !== top ? `<p style="margin:4px 0 0" class="muted">Meanwhile: ${stepText(waiting[1], waiting[0].target)} (${waiting[0].t})</p>` : "",
+      (waiting && waiting[0] !== top ? `<p style="margin:4px 0 0" class="muted">Meanwhile: ${stepText(waiting[1], waiting[0].target)} (${waiting[0].t})</p>` : "") + (top.more ? `<p style="margin:4px 0 0">${top.more}</p>` : ""),
       top.target.type === "mastery" ? skipM(top.target.item) : top.target.type === "quest" ? skipQ(top.target.key) : ""));
     else if (fixed) mlines.push(monoLi("Do this next", `<b>${fixed.t}</b>`, fixed.d || ""));
     if (!p.noTower) {
@@ -1890,7 +1896,8 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     if (akx) {
       const t = masteryTarget(akx.item, akx.tier, akx.left, akx.effort), x = stepsFor(t)[0];
       const label = `AK · ${esc(akx.item)} ${tierName(akx.tier)}, ${fmt(akx.left)} more, ${gain(akx)}`;
-      mlines.push(x ? monoStep(label, t, x, "", skipM(akx.item)) : monoLi(label, ""));
+      const where = outletText(akx.item, akx.left, akx.effort.amount);                  // what to do with the extras
+      mlines.push(x ? monoStep(label, t, x, where ? `<p style="margin:4px 0 0">${where}</p>` : "", skipM(akx.item)) : monoLi(label, ""));
     }
     $("mono-plan").innerHTML = mlines.join("");
   }
@@ -3139,6 +3146,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     const all = F.grindList(p.items, { coster: C, perDay, budget, growth, craftToo: CRAFT_TOO, petGathered: PG }, { minDays: S.perks.grindDays > 0 ? S.perks.grindDays : 180, always: GRIND_ALWAYS, targetFor });
     // Ones that need something the farm doesn't make at all aren't grinds yet: one muted count instead
     const rows = all.filter(r => r.pinned || r.days !== Infinity), noProd = all.length - rows.length;
+    GRIND_ROWS = rows;
     // Grapes as the limit, below your cap: Vineyard units can be bought without limit (each costs 2,000 x the new amount),
     // so time it as if you raise Grapes to your cap now and keep up as the cap grows (knowledge/mechanics/building-upgrades.md)
     const gDay = (prod().Grapes || 0) * 24, capNow = invCap(), capUp = S.perks.capPerDay || 0;
@@ -3605,6 +3613,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   function hereSeen(where, at) {
     const changed = noteVisit(where, at);
     if (!HERE || at >= HERE.at) HERE = { path: gamePath(where), at };
+    showAuto();
     if (changed) { save(); renderChecklist(); }
     renderHere();
   }
@@ -3820,8 +3829,9 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
 
 
   // ---------- Perks to get next ----------
-  // Each perk for sale on your Perks (points) and Farm Supply (gold) pages: add it to your settings, re-price your plan
-  // (open quests and the AK picks), and rank by AP saved per point / gold. Only perks the costing reads can be priced.
+  // Each perk for sale on your Perks (points) and Farm Supply (gold) pages is tried on your plan: the slow grinds are
+  // re-timed with it (days saved) and the open quests + AK picks re-priced (AP saved). Days count as AP by the player's
+  // own "an hour of waiting feels like … minutes of play". XP perks for skills at 99 do nothing and are left out.
   function planAP(perks) {
     if (!S.mastery || !W || !LAST || !LAST.ap) return null;
     const c = makeCoster(DROPS, RECIPES, perks, W, PASSIVE), onHand = O ? O.onHand : {}, hidden = new Set(S.questHidden || []);
@@ -3831,6 +3841,22 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     for (const pk of LAST.ap.picks) add(pk.item, pk.left);
     return ap;
   }
+  // Days each slow grind takes, with perks or a bigger cap swapped in for the sum (S is put back; nothing is saved)
+  function grindDays(over) {
+    const F = window.FRP, keep = { perks: S.perks, inv: S.inventory }, out = {};
+    try {
+      if (over && over.perks) S.perks = { ...S.perks, ...over.perks };
+      if (over && over.cap && S.inventory) S.inventory = { ...S.inventory, cap: over.cap };
+      const coster = over && over.perks ? makeCoster(DROPS, RECIPES, S.perks, W, PASSIVE) : C;
+      const perDay = grindPerDay(grindEnv()), made = {};
+      for (const [k, n] of Object.entries({ lnPerDay: "Large Net", apPerDay: "Arnold Palmer", acPerDay: "Apple Cider" })) made[k] = F.makesPerDay(n, coster, perDay, true);
+      const v = k => S.perks[k] > 0 ? S.perks[k] : made[k] || 0;
+      const ctx = { coster, perDay, budget: { LN: v("lnPerDay"), AP: v("apPerDay") + v("acPerDay"), AC: v("acPerDay") }, craftToo: CRAFT_TOO, petGathered: petGathered(),
+        growth: { env: grindEnv(), capPerDay: S.perks.capPerDay || 0, extra: S.perks.extraAntlers > 0 ? { Antler: 1 } : {}, cache: {} } };
+      for (const r of GRIND_ROWS) { const t = F.grindTime(r.item, r.left, ctx); out[r.item] = t && t.days != null ? t.days : Infinity; }
+    } finally { S.perks = keep.perks; S.inventory = keep.inv; }
+    return out;
+  }
   // What buying one perk changes in the settings (numbers add up across both pages; yes/no perks switch on)
   function perkDelta(kind, perk) {
     const sh = S.perkShop[kind], a = perkSettings({ page: kind, unlocked: sh.unlocked, misc: sh.misc });
@@ -3838,41 +3864,70 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     for (const k of Object.keys(b)) if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) d[k] = typeof b[k] === "number" ? b[k] - (a[k] || 0) : b[k];
     return d;
   }
-  const PERK_HELPS = { cropGrowthCut: "crops grow faster", cornGrowthCut: "corn grows faster", doublePrizes: "more crops per harvest", wanderer: "exploring uses less stamina",
-    sellBonus: "more silver from selling", craftSilverCut: "cheaper crafting", cookFaster: "faster cooking", grapeJuice: "more Grape Juice a day", wwTosses: "more wishing well tosses",
+  // Settings that change how fast your farm and crafting make things: those get the slow grinds re-timed
+  const GRIND_KEYS = ["cropGrowthCut", "cornGrowthCut", "doublePrizes", "grapeJuice", "resourceSaver", "orchardNoon", "antlerNoon", "lemonSqueezer", "cinnamonSticks", "reinforcedNetting", "ironDepot"];
+  const PERK_HELPS = { cropGrowthCut: "crops grow faster", cornGrowthCut: "corn grows faster", doublePrizes: "more crops per harvest", wanderer: "less stamina per Apple Cider and per explore",
+    sellBonus: "more silver from selling", craftSilverCut: "cheaper crafting (silver)", cookFaster: "faster cooking", grapeJuice: "more Grape Juice a day", wwTosses: "more wishing well tosses",
     orchardNoon: "more fruit", antlerNoon: "more Antlers", animalLover: "animals level faster", sprintShoes: "cheaper exploring upgrades", friendPrimer: "faster friendships", omg: "faster friendships" };
+  const XP_SKILL = desc => { const m = String(desc).match(/more XP when (farming|fishing|crafting|exploring|cooking|mining)/i); return m ? m[1][0].toUpperCase() + m[1].slice(1) : null; };
+  let perksCache = { key: null, out: null };
   function perksNext() {
-    const base = planAP(S.perks), out = { points: [], gold: [] };
+    const p = player(), key = JSON.stringify([S.perkShop, S.perks, S.mastery && S.mastery.at, S.inventory && S.inventory.at, S.workshopAt, S.questsAt, S.production, S.orchard, GRIND_ROWS.map(r => r.item)]);
+    if (perksCache.key === key) return perksCache.out;
+    const dayAP = 24 * (S.perks.waitWorth ?? 20) * Math.max(1, S.perks.apPerMin || 100);   // a day of waiting, in AP
+    const baseAP = planAP(S.perks), baseDays = GRIND_ROWS.length ? grindDays(null) : {}, out = { points: [], gold: [], skipped: [] };
     for (const kind of ["perks", "supply"]) {
       const sh = (S.perkShop || {})[kind];
       if (!sh) continue;
       for (const perk of sh.forSale || []) {
+        // XP for a skill you've maxed does nothing
+        const sk = XP_SKILL(perk.desc), lv = sk && (p.skills || {})[sk];
+        if (sk && lv >= 99) { out.skipped.push(perk); continue; }
         const d = perkDelta(kind, perk), perks = { ...S.perks };
         for (const [k, v] of Object.entries(d)) perks[k] = typeof v === "number" ? (S.perks[k] || 0) + v : v;
-        const keys = Object.keys(d), saved = base != null && keys.length ? base - planAP(perks) : null;
-        out[perk.unit].push({ ...perk, kind, saved: saved != null && saved >= 1 ? saved : null, helps: keys.map(k => PERK_HELPS[k]).filter(Boolean) });
+        const capUp = +((perk.name.match(/^\+([\d,]+) Inventory Cap/i) || [])[1] || "0").replace(/,/g, "");
+        let ap = null, days = 0, sooner = [];
+        if (Object.keys(d).length && baseAP != null) { const x = baseAP - planAP(perks); if (x >= 1) ap = x; }
+        if (GRIND_ROWS.length && (capUp && invCap() !== Infinity || Object.keys(d).some(k => GRIND_KEYS.includes(k)))) {
+          const now = grindDays({ perks: Object.keys(d).length ? perks : null, cap: capUp ? invCap() + capUp : null });
+          for (const [item, was] of Object.entries(baseDays)) {
+            const cut = isFinite(was) && isFinite(now[item]) ? was - now[item] : 0;
+            if (cut >= 0.5) { days += cut; sooner.push({ item, cut }); }
+          }
+        }
+        sooner.sort((x, y) => y.cut - x.cut);
+        const score = (ap || 0) + days * dayAP, helps = Object.keys(d).map(k => PERK_HELPS[k]).filter(Boolean);
+        if (sk) helps.push(`${sk} XP (you're level ${lv ?? "?"})`);
+        if (capUp) helps.push(`+${fmt(capUp)} inventory cap`);
+        out[perk.unit].push({ ...perk, kind, ap, days, sooner, score: score >= 1 ? score : null, helps });
       }
     }
-    for (const u of ["points", "gold"]) out[u].sort((a, b) => (b.saved != null) - (a.saved != null) || (b.saved || 0) / b.cost - (a.saved || 0) / a.cost || a.cost - b.cost);
+    for (const u of ["points", "gold"]) out[u].sort((a, b) => (b.score != null) - (a.score != null) || (b.score || 0) / b.cost - (a.score || 0) / a.cost || a.cost - b.cost);
+    perksCache = { key, out };
     return out;
   }
+  const daysText = d => d >= 60 ? `${short(d / 30)} months` : d >= 1.5 ? `${fmt(Math.round(d))} days` : `${fmt(Math.round(d * 24))} hours`;
   function perkRows(list, unit) {
     const word = unit === "points" ? "points" : "Gold";
-    const priced = list.filter(x => x.saved != null), rest = list.filter(x => x.saved == null).sort((a, b) => a.cost - b.cost);
-    const line = x => x.saved != null
-      ? `<b>${esc(x.name)}</b> <span class="small muted">· ${fmt(x.cost)} ${word} · saves ~${short(x.saved)} AP on your plan (${short(x.saved / x.cost)} AP per ${unit === "points" ? "point" : "gold"})</span>`
+    const priced = list.filter(x => x.score != null), rest = list.filter(x => x.score == null).sort((a, b) => a.cost - b.cost);
+    const why = x => [x.days >= 0.5 ? `${daysText(x.days)} off your slow grinds (${x.sooner.slice(0, 2).map(g => `${esc(g.item)} ${daysText(g.cut)} sooner`).join(", ")})` : "",
+      x.ap ? `saves ~${short(x.ap)} AP on quests and AK picks` : ""].filter(Boolean).join("; ");
+    const line = x => x.score != null
+      ? `<b>${esc(x.name)}</b> <span class="small muted">· ${fmt(x.cost)} ${word}</span><br><span class="small">${why(x)}</span>`
       : `${esc(x.name)} <span class="small muted">· ${fmt(x.cost)} ${word}${x.helps.length ? ` · ${x.helps.join(", ")}` : x.desc ? ` · ${esc(x.desc.slice(0, 80))}` : ""}</span>`;
     const top = priced[0] || null;
-    return { top, html: top ? line(top) : rest.length ? `Nothing here changes your plan's AP. Cheapest: ${line(rest[0])}` : "",
-      more: [...priced.slice(1).map(line), ...(rest.length ? [`<span class="muted">Can't be priced in AP (time, silver or comfort):</span>`] : []), ...rest.slice(0, 8).map(line)].join("<br>") };
+    return { top, html: top ? line(top) : rest.length ? `<span class="muted">None of these speeds up your grinds or saves AP on your plan.</span>` : "",
+      more: [...priced.slice(1, 6).map(line), ...(rest.length ? [`<span class="muted">The planner can't measure these for you (stamina, silver, comfort):</span>`] : []), ...rest.slice(0, 8).map(line)].join("<br>") };
   }
   function renderPerksNext() {
     const sh = S.perkShop || {};
     if (!sh.perks && !sh.supply) { $("perks-list").innerHTML = monoLi("Perks", `${getPage("Paste", "Open")} your <b>Perks</b> page and the <b>Farm Supply</b> perks page (in Town) to see which perk to get next.`); return; }
+    if (!S.mastery || !C) { $("perks-list").innerHTML = monoLi("Perks", `${getPage("Paste", "Open")} Mastery Progress first: perks are judged by your plan.`); return; }
     const n = perksNext(), pts = sh.perks && sh.perks.points;
     const rowsFor = (unit, label, have) => { const r = perkRows(n[unit], unit); return r.html ? monoLi(label + (have != null ? ` <span class="small">(you have ${fmt(have)})</span>` : ""), r.html, r.more) : ""; };
     $("perks-list").innerHTML = (sh.perks ? rowsFor("points", "With points", pts) : monoLi("With points", `<span class="muted">${getPage("Paste", "Open")} the Perks page</span>`))
-      + (sh.supply ? rowsFor("gold", "With gold", S.gold) : monoLi("With gold", `<span class="muted">${getPage("Paste", "Open")} the Farm Supply perks page (in Town)</span>`));
+      + (sh.supply ? rowsFor("gold", "With gold", S.gold) : monoLi("With gold", `<span class="muted">${getPage("Paste", "Open")} the Farm Supply perks page (in Town)</span>`))
+      + (n.skipped.length ? `<li class="small muted">Left out: XP perks for skills you've maxed (${n.skipped.map(x => esc(x.name)).join(", ")}).</li>` : "");
   }
   // ---------- Reference (reference.js, built from knowledge/ by tools/build-reference.js) ----------
   // A small Markdown reader for the notes: headings, lists, tables, bold, code, links, [[other note]] links and
@@ -5072,7 +5127,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   });
 
   // ---------- Best use order (App settings) ----------
-  const BEST_NAME = { best: "Spend my…", plant: "What to plant", "pets-card": "Pet items", trips: "Trips", overflow: "Daily overflow", "steak-card": "Steak Market", "silver-goal": "Silver goal", drinks: "Exploring drinks", kitchen: "Kitchen" };
+  const BEST_NAME = { best: "Spend my…", plant: "What to plant", "pets-card": "Pet items", trips: "Trips", overflow: "Daily overflow", "steak-card": "Steak Market", "silver-goal": "Silver goal", drinks: "Exploring drinks", kitchen: "Kitchen", "perks-next": "Perks to get next" };
   function applyBestOrder() {
     let at = $("best-nav");
     for (const id of U.bestOrder) { at.after($(id)); at = $(id); $(id).classList.toggle("user-off", U.bestOff.includes(id)); }
