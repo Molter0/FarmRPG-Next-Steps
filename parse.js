@@ -48,10 +48,14 @@
     // must not win just by coming first
     // Only that block: a page without it (the Mastery list carried by an item page, whose recipe says "Requires Crafting
     // Level 15") has no skill levels to give
-    const skillText = plain.includes("My skills") ? plain.slice(plain.indexOf("My skills")) : "";
+    // The block itself: from "My skills" to the next section (or ~300 characters), so a carried page further on (a
+    // recipe's "Requires Crafting Level 15") can't be read as yours. "Crafting Level 99", "Crafting Lv 99" or "Crafting 99"
+    const at = plain.indexOf("My skills"), rest = at < 0 ? "" : plain.slice(at + 9);
+    const end = rest.search(/Perks, Mastery|So far, you have|Unlock Perks|Mastery Progress|Requires /i);
+    const skillText = rest.slice(0, Math.min(end < 0 ? 300 : end, 300));
     const skills = {};
     for (const s of SKILLS) {
-      const sm = skillText.match(new RegExp("\\b" + s + " Level (\\d+)"));
+      const sm = skillText.match(new RegExp("\\b" + s + "\\s*(?:Level|Lv\\.?|LVL)?\\s*(\\d{1,2})\\b", "i"));
       if (sm) skills[s] = toInt(sm[1]);
     }
 
@@ -462,6 +466,13 @@
     return { name, onHand: hand ? toInt(hand[1]) : null, mastery: m ? toInt(m[1]) : null };
   }
 
+  // Home: "My skills" (your levels), "The Tower / Unused Points: N / Level N" and "Unlock Perks / Unused Points: N" (perk
+  // points left). No mastery list: that's on Mastery Progress. { skills, tower, perkPoints }
+  function parseHome(text) {
+    const r = parseMastery(text), pp = flatText(text).match(/Unlock Perks.{0,40}?Unused Points:\s*([\d,]+)/i);
+    return { skills: r.skills, tower: r.tower, perkPoints: pp ? toInt(pp[1]) : null };
+  }
+
   // Workshop: every recipe is "Name (N)" (N = how many you have) after its favourite heart, then one "have / need Part"
   // line per part. Gives what you have of nearly everything you craft or craft with: { have: { name: n }, recipes: n }
   function parseWorkshop(text) {
@@ -670,13 +681,15 @@
     // which every page carries (and auto-read hands over every page)
     // ("Available Sep 21 - Sep 30" on a special request: a date, so "Available Upgrades" elsewhere doesn't count)
     if (/Active Requests|Special Requests/i.test(text) && /^\s*[*•-]?\s*\[?(Request from |Available [A-Z][a-z]{2,8}\.? \d)/im.test(text)) return "quests";
+    // Home last: other pages opened from it carry it, and those are read by their own content first
+    if (/^\s*My skills\s*$/im.test(text) && /The Tower/i.test(text)) return "home";
     return null;
   }
 
   // Other pages a copy carries besides the one pasted (the page you came from, the farm sidebar), in the order they
   // appear: each is read quietly before the pasted page, which has the last word
   const CARRIED = [["town", /^\s*Market District\s*$/im], ["farm", /^\s*Around Your Farm\s*$/im],
-    ["pigpen", /^\s*Pigs \([\d,]+ \/ [\d,]+\)\s*$/im], ["temple", /^\s*Sacrifice: /m], ["workshop", /Items that you can craft are below/i]];
+    ["pigpen", /^\s*Pigs \([\d,]+ \/ [\d,]+\)\s*$/im], ["temple", /^\s*Sacrifice: /m], ["workshop", /Items that you can craft are below/i], ["home", /^\s*My skills\s*$/im]];
   function carriedPages(text, kind) {
     const t = String(text || "");
     return CARRIED.filter(([k, re]) => k !== kind && re.test(t) && (k !== "temple" || /Items Sacrificed/i.test(t)))
@@ -715,7 +728,7 @@
 
   const api = { parseMastery: noChat(parseMastery), parseInventory: noChat(parseInventory), parseOrchard: noChat(parseOrchard),
     parseFarm: noChat(parseFarm), parseQuests: noChat(parseQuests), parsePerks: noChat(parsePerks), parseBuilding: noChat(parseBuilding), parseMarket: noChat(parseMarket), marketPrices, parseRequest: noChat(parseRequest), parseSteak: noChat(parseSteak), parseFriends: noChat(parseFriends), perkSettings,
-    parseExploreInfo: noChat(parseExploreInfo), parsePets: noChat(parsePets), parseTemple: noChat(parseTemple), parseCraftworks: noChat(parseCraftworks), parseWorkshop: noChat(parseWorkshop), parseItemPage: noChat(parseItemPage), parsePetShop: noChat(parsePetShop), parseBank: noChat(parseBank), parsePigPen: noChat(parsePigPen), parseCommunity: noChat(parseCommunity), parseTown: noChat(parseTown), parseFarmToday: noChat(parseFarmToday), detectPage: noChat(detectPage), carriedPages: noChat(carriedPages), parseSilver: noChat(parseSilver), stripChat, toInt };
+    parseExploreInfo: noChat(parseExploreInfo), parsePets: noChat(parsePets), parseTemple: noChat(parseTemple), parseCraftworks: noChat(parseCraftworks), parseWorkshop: noChat(parseWorkshop), parseItemPage: noChat(parseItemPage), parseHome: noChat(parseHome), parsePetShop: noChat(parsePetShop), parseBank: noChat(parseBank), parsePigPen: noChat(parsePigPen), parseCommunity: noChat(parseCommunity), parseTown: noChat(parseTown), parseFarmToday: noChat(parseFarmToday), detectPage: noChat(detectPage), carriedPages: noChat(carriedPages), parseSilver: noChat(parseSilver), stripChat, toInt };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.FRP = Object.assign(root.FRP || {}, api);
 })(typeof window !== "undefined" ? window : globalThis);

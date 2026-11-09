@@ -408,3 +408,28 @@ console.log("parse tests passed");
   assert.strictEqual(detectPage(["Special Requests (1)", "Pumpkin Party", "Available Oct 1 - Oct 31", "READY!"].join(nl)), "quests");
   assert.strictEqual(parseTown(["Bank", "Deposit your Silver", "Library", "12"].join(nl)).bank, undefined);
 }
+
+// "My skills" in other layouts, and never past its own block (a carried recipe's "Requires Crafting Level 15")
+{
+  const nl = "\n";
+  const at = lines => parseMastery(lines.join(nl)).skills;
+  assert.deepStrictEqual(at(["My skills", "Farming", "99", "Crafting", "99", "Cooking", "58", "Perks, Mastery & More", "Craftable", "Requires Crafting Level 15"]), { Farming: 99, Crafting: 99, Cooking: 58 });
+  assert.deepStrictEqual(at(["My skills", "Farming Lv 99", "Crafting Lv. 98"]), { Farming: 99, Crafting: 98 });
+  assert.strictEqual(at(["My skills", "Farming", "Level 99", "Perks, Mastery & More", "Item Details", "Requires Crafting Level 15"]).Crafting, undefined);
+}
+
+// Home on its own (no Mastery list, no "So far, you have" line): skills, Tower and perk points left (made-up numbers)
+{
+  const { detectPage, parseHome, carriedPages } = require("../parse.js"), nl = "\n";
+  const home = ["Where do you want to go?", "* [Help Needed](https://farmrpg.com/quests.php)", "[Special Requests Available!](https://farmrpg.com/quests.php)", "[17 Left](https://farmrpg.com/quests.php)",
+    "* [The Tower ](https://farmrpg.com/tower.php)", "[Unused Points: 26](https://farmrpg.com/tower.php)", "[ Level 117](https://farmrpg.com/tower.php)",
+    "My skills", "", "Farming", "Level 99", "", "Crafting", "Level 99", "", "Cooking", "Level 46", "", "Mining", "Level 40", "Perks, Mastery & More",
+    "* [Unlock Perks ](https://farmrpg.com/perks.php)", "[Unused Points: 9](https://farmrpg.com/perks.php)", "[3 Available](https://farmrpg.com/perks.php)"].join(nl);
+  assert.strictEqual(detectPage(home), "home");
+  assert.deepStrictEqual(parseHome(home), { skills: { Farming: 99, Crafting: 99, Cooking: 46, Mining: 40 }, tower: { ak: 26, level: 117 }, perkPoints: 9 });
+  const plain = home.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/^\* /gm, "");
+  assert.strictEqual(detectPage(plain), "home");
+  assert.deepStrictEqual(parseHome(plain).tower, { ak: 26, level: 117 });
+  // A page opened from Home carries it: read quietly along with that page
+  assert.ok(carriedPages(["Items that you can craft are below.", plain].join(nl), "workshop").includes("home"));
+}

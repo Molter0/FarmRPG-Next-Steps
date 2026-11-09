@@ -772,32 +772,32 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   <div id="debug-list"></div>
   <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
 </dialog>
-<script src="tools-menu.js?v=202611090900" defer></script>
-<script src="tower.js?v=202611090900"></script>
-<script src="parse.js?v=202611090900"></script>
-<script src="drops.js?v=202611090900"></script>
-<script src="reference.js?v=202611090900"></script>
-<script src="seasons.js?v=202611090900"></script>
-<script src="recipes.js?v=202611090900"></script>
-<script src="recipes-extra.js?v=202611090900"></script>
-<script src="items.js?v=202611090900"></script>
-<script src="upgrades.js?v=202611090900"></script>
-<script src="pets.js?v=202611090900"></script>
-<script src="savecode.js?v=202611090900"></script>
+<script src="tools-menu.js?v=202611090907" defer></script>
+<script src="tower.js?v=202611090907"></script>
+<script src="parse.js?v=202611090907"></script>
+<script src="drops.js?v=202611090907"></script>
+<script src="reference.js?v=202611090907"></script>
+<script src="seasons.js?v=202611090907"></script>
+<script src="recipes.js?v=202611090907"></script>
+<script src="recipes-extra.js?v=202611090907"></script>
+<script src="items.js?v=202611090907"></script>
+<script src="upgrades.js?v=202611090907"></script>
+<script src="pets.js?v=202611090907"></script>
+<script src="savecode.js?v=202611090907"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
-<script src="seeds.js?v=202611090900"></script>
-<script src="meals.js?v=202611090900"></script>
-<script src="ww.js?v=202611090900"></script>
-<script src="levels.js?v=202611090900"></script>
-<script src="quests.js?v=202611090900"></script>
-<script src="loot.js?v=202611090900"></script>
-<script src="trade.js?v=202611090900"></script>
-<script src="prices.js?v=202611090900"></script>
-<script src="npcs.js?v=202611090900"></script>
-<script src="engine.js?v=202611090900"></script>
+<script src="seeds.js?v=202611090907"></script>
+<script src="meals.js?v=202611090907"></script>
+<script src="ww.js?v=202611090907"></script>
+<script src="levels.js?v=202611090907"></script>
+<script src="quests.js?v=202611090907"></script>
+<script src="loot.js?v=202611090907"></script>
+<script src="trade.js?v=202611090907"></script>
+<script src="prices.js?v=202611090907"></script>
+<script src="npcs.js?v=202611090907"></script>
+<script src="engine.js?v=202611090907"></script>
 <script>
 (function () {
-  const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parseWorkshop, parseItemPage, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
+  const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parseWorkshop, parseItemPage, parseHome, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
   // A new visitor starts with no paid perks (the engine's DEFAULT_PERKS assume all of them); pastes and ticks fill them in
   const START_PERKS = { ...DEFAULT_PERKS, ironDepot: false, runecube: false, lemonSqueezer: false, cinnamonSticks: false, sprintShoes: 0, reinforcedNetting: false,
     fishingTrawl: false, wanderer: 0, resourceSaver: 0, orchardNoon: 0, antlerNoon: 0, sellBonus: 0, craftSilverCut: 0, friendBonus: 0, grapeJuice: 2 };
@@ -944,7 +944,8 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       : "Open any game page to see the Here card. ") : "";
     $("auto-on").innerHTML = `<b class="ok">✓</b> Auto-read is on. ` + old + here + (last.length
       ? "Latest game pages: " + last.map(p => `${esc(autoWhere(p.where))} ${hm(p.at)} → ${p.old ? `<span class="muted">older than what's read already</span>` : p.kind ? esc(PAGE_NAME[p.kind] || p.kind) : `<span class="muted">skipped (nothing the planner reads)</span>`} <a href="#" data-auto-copy="${esc(p.id)}" title="Copy the text that came in, to report a page that reads wrong">copy</a>`).join(" · ")
-      : "No game pages have come in yet: open one in FarmRPG, wait 2 seconds, then come back to this tab.");
+      : "No game pages have come in yet: open one in FarmRPG, wait 2 seconds, then come back to this tab.")
+      + (last.length ? ` · <a href="#" data-auto-save title="Every game page auto-read handed over in this tab (${U.debug ? "up to 300 with Debug on" : "the latest 40; tick Debug in App settings to keep 300"}), with what the planner made of each, plus your planner data: to check the readers. Contains your chat as shown on the pages.">Save debug file</a>` : "");
   };
   window.addEventListener("message", e => {
     const d = e.data;
@@ -955,9 +956,9 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     if (autoLog[d.id]) return;                                           // already handled in this tab: each flush resends them all
     const at = d.at || Date.now(), kind = detectPage(d.text);
     autoLog[d.id] = { where: d.where, at, kind, text: d.text };          // kept for its copy link (this tab only)
-    // Keep the 40 latest: texts are large (chat included) and every change in the game makes a new one
-    const ids = Object.keys(autoLog);
-    if (ids.length > 40) ids.sort((a, b) => autoLog[a].at - autoLog[b].at).slice(0, ids.length - 40).forEach(k => delete autoLog[k]);
+    // Keep the 40 latest (300 with Debug on, for the debug file): texts are large and every change in the game makes a new one
+    const ids = Object.keys(autoLog), keepN = U.debug ? 300 : 40;
+    if (ids.length > keepN) ids.sort((a, b) => autoLog[a].at - autoLog[b].at).slice(0, ids.length - keepN).forEach(k => delete autoLog[k]);
     if (d.where) { const t = screenTitleOf(d.text); if (t) titleAt[gamePath(d.where)] = t; }
     if (d.where && noteVisit(d.where, at, kind)) { save(); renderChecklist(); }
     showAutoSoon();
@@ -969,11 +970,23 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     if ((S.readAt || {})[readKey(kind, d.text)] >= at) { autoLog[d.id].old = true; return; }
     const q = $("quick-paste"); q.value = d.text.slice(0, 5e6);
     autoQuiet = true; autoReadAt = at; q.dispatchEvent(new Event("input"));
+    // What came of it, for the debug file: the read message, or that nothing could be read
+    autoLog[d.id].result = autoQuiet === "failed" ? "read nothing" : $("quick-msg").innerText.replace(/\s*Undo\s*$/, "").trim() || "read";
     if (autoQuiet === "failed") autoLog[d.id].kind = null;
     autoQuiet = false; autoReadAt = null;
     if (HERE && d.where && gamePath(d.where) === HERE.path) renderHere();     // the page you're on just came in
   });
   $("auto-on").addEventListener("click", e => {
+    // Debug file: every page this tab received (oldest first), what was made of it, and the planner's data, as JSON
+    if (e.target.closest("[data-auto-save]")) {
+      e.preventDefault();
+      const pages = Object.values(autoLog).sort((a, b) => a.at - b.at).map(p => ({ at: new Date(p.at).toISOString(), where: p.where, kind: p.kind, old: !!p.old, result: p.result || null, text: p.text }));
+      const blob = new Blob([JSON.stringify({ savedAt: new Date().toISOString(), script: autoVersion, pages, planner: S }, null, 1)], { type: "application/json" });
+      const a = document.createElement("a"), stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "");
+      a.href = URL.createObjectURL(blob); a.download = `farmrpg-debug-${stamp}.json`; document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      return;
+    }
     const a = e.target.closest("[data-auto-copy]"), p = a && autoLog[a.dataset.autoCopy];
     if (!p) return;
     e.preventDefault();
@@ -1116,6 +1129,20 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
           S.pets = { items: r.items, at: Date.now() }; done = true;
           const over = inv.cap ? names.filter(n => r.items[n].have + r.items[n].found > inv.cap).length : null;
           msg = `<div class="note" style="border-color:var(--good)">Read your pet items: ${fmt(names.length)} items${over != null ? `, ${fmt(over)} would go over your cap` : " (paste My Inventory once so the planner knows your cap)"}. See Best use.</div>`;
+        }
+      } else if (kind === "home") {
+        // Home: your skill levels (they only ever go up), your Tower (level and unused AK) and perk points left. The
+        // mastery list stays as it is: that's on Mastery Progress.
+        const r = parseHome(text);
+        if (!Object.keys(r.skills).length && !r.tower) msg = warn("Nothing was read from Home: no skills or Tower were found.");
+        else if (!S.mastery) msg = warn(`Read Home, but ${getPage("paste", "open")} Mastery Progress first (open every tier): Home only adds your skills and Tower.`);
+        else {
+          const skills = { ...(S.mastery.skills || {}) };
+          for (const [k, v] of Object.entries(r.skills)) skills[k] = Math.max(v, skills[k] || 0);
+          S.mastery = { ...S.mastery, skills, tower: r.tower || S.mastery.tower || null };
+          if (r.perkPoints != null && S.perkShop && S.perkShop.perks) S.perkShop.perks = { ...S.perkShop.perks, points: r.perkPoints };
+          done = true;
+          msg = `<div class="note" style="border-color:var(--good)">Read Home: your skill levels${r.tower ? `, Tower level ${fmt(r.tower.level)} (${fmt(r.tower.ak)} AK)` : ""}${r.perkPoints != null ? `, ${fmt(r.perkPoints)} perk points left` : ""}.</div>`;
         }
       } else if (kind === "item") {
         // One item's page (where you craft, and claim its mastery): that item's mastery count and how many you have
@@ -1295,7 +1322,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   // The last few states before a paste, kept on this device (not in save codes)
   const UNDO_STORE = "frp-undo", UNDO_MAX = 3;
   const PAGE_NAME = { mastery: "Mastery Progress", inventory: "My Inventory", farm: "farm page", perks: "Perks", supply: "Farm Supply perks (Town)", friends: "Friendship",
-    steak: "Steak Market", pets: "All Pet Items", temple: "Temple of Reward", craftworks: "Craftworks", workshop: "Workshop", item: "item page", petshop: "Pet Shop", bank: "Bank", town: "Town", pigpen: "Pig Pen", "explore-info": "Exploring Effectiveness", request: "request page", market: "Farmer's Market", building: "building page", orchard: "Orchard", quests: "Help Needed" };
+    steak: "Steak Market", pets: "All Pet Items", temple: "Temple of Reward", craftworks: "Craftworks", workshop: "Workshop", item: "item page", home: "Home", petshop: "Pet Shop", bank: "Bank", town: "Town", pigpen: "Pig Pen", "explore-info": "Exploring Effectiveness", request: "request page", market: "Farmer's Market", building: "building page", orchard: "Orchard", quests: "Help Needed" };
   const undoList = () => { try { return JSON.parse(localStorage.getItem(UNDO_STORE)) || []; } catch (e) { return []; } };
   function pushUndo(label, state) {
     let list = [...undoList(), { label, at: Date.now(), S: state }].slice(-UNDO_MAX);
