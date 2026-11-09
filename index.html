@@ -772,29 +772,29 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   <div id="debug-list"></div>
   <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
 </dialog>
-<script src="tools-menu.js?v=202611090923" defer></script>
-<script src="tower.js?v=202611090923"></script>
-<script src="parse.js?v=202611090923"></script>
-<script src="drops.js?v=202611090923"></script>
-<script src="reference.js?v=202611090923"></script>
-<script src="seasons.js?v=202611090923"></script>
-<script src="recipes.js?v=202611090923"></script>
-<script src="recipes-extra.js?v=202611090923"></script>
-<script src="items.js?v=202611090923"></script>
-<script src="upgrades.js?v=202611090923"></script>
-<script src="pets.js?v=202611090923"></script>
-<script src="savecode.js?v=202611090923"></script>
+<script src="tools-menu.js?v=202611090948" defer></script>
+<script src="tower.js?v=202611090948"></script>
+<script src="parse.js?v=202611090948"></script>
+<script src="drops.js?v=202611090948"></script>
+<script src="reference.js?v=202611090948"></script>
+<script src="seasons.js?v=202611090948"></script>
+<script src="recipes.js?v=202611090948"></script>
+<script src="recipes-extra.js?v=202611090948"></script>
+<script src="items.js?v=202611090948"></script>
+<script src="upgrades.js?v=202611090948"></script>
+<script src="pets.js?v=202611090948"></script>
+<script src="savecode.js?v=202611090948"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
-<script src="seeds.js?v=202611090923"></script>
-<script src="meals.js?v=202611090923"></script>
-<script src="ww.js?v=202611090923"></script>
-<script src="levels.js?v=202611090923"></script>
-<script src="quests.js?v=202611090923"></script>
-<script src="loot.js?v=202611090923"></script>
-<script src="trade.js?v=202611090923"></script>
-<script src="prices.js?v=202611090923"></script>
-<script src="npcs.js?v=202611090923"></script>
-<script src="engine.js?v=202611090923"></script>
+<script src="seeds.js?v=202611090948"></script>
+<script src="meals.js?v=202611090948"></script>
+<script src="ww.js?v=202611090948"></script>
+<script src="levels.js?v=202611090948"></script>
+<script src="quests.js?v=202611090948"></script>
+<script src="loot.js?v=202611090948"></script>
+<script src="trade.js?v=202611090948"></script>
+<script src="prices.js?v=202611090948"></script>
+<script src="npcs.js?v=202611090948"></script>
+<script src="engine.js?v=202611090948"></script>
 <script>
 (function () {
   const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parseWorkshop, parseItemPage, parseHome, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
@@ -1250,6 +1250,10 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     let { msg, done } = read(kind);
     // When this page's data was taken (an auto-read page: when the game showed it), so an older copy never overwrites it
     if ((done || !msg) && kind) S.readAt = { ...(S.readAt || {}), [readKey(kind, text)]: autoReadAt || Date.now() };
+    // Daily Chores' status shows on many pages (Home, the sidebar): "Daily Chores / Earn Ancient Coins Daily / Done!".
+    // Kept with today's Town marks, so the Checklist ticks it from whichever page showed it last
+    const chores = parseTown(text)["Daily Chores"];
+    if (chores) S.town = { places: { ...(today(S.town) ? S.town.places : {}), "Daily Chores": chores }, day: gameDay(Date.now()) };
     const ok = !msg || done;
     if (JSON.stringify(S) !== before) {
       pushUndo(PAGE_NAME[kind] || "a page", before);
@@ -1656,7 +1660,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     renderHere();
   }
   // Places the player can use this month: auto-detected from the paste, then their own ticks on top
-  let W = null, C = null, O = null, PASSIVE = [], GRIND_ROWS = [];
+  let W = null, C = null, O = null, PASSIVE = [], GRIND_ROWS = [], PLANT_CROPS = [];
   // "Tower" tag whose tip (hover or tap) names the Tower levels that still need this item, e.g. "Needed for Tower 235 (Mega Mastery)"
   const towerTipText = (item, have) => {
     const all = (O && O.towerUse[item]) || [], open = all.filter(u => (have || 0) < (u.tier === "mm" ? 1e6 : 1e5));
@@ -2971,6 +2975,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       const score = jobs.reduce((s, j) => s + j.w / (1 + j.hours / 24), 0);
       return { crop, ...x, jobs, score };
     }).filter(c => c.jobs.length).sort((a, b) => b.score - a.score);
+    PLANT_CROPS = crops;
     // Crops officially <= 5 min go under Breakfast Boost, in rounds (knowledge/mechanics/breakfast-boost.md).
     const extraHtml = j => j.extra ? `<details class="muted"><summary>where the extra goes (more than you can hold)</summary>${j.extra}</details>` : "";
     const rounds = S.perks.boostRounds || 250;
@@ -3015,7 +3020,30 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       ? `Eat a <b>Breakfast Boost</b> and farm <b>${esc(mc.crop)}</b>: about ${fmt(roundsFor(mc, mj))} rounds of Plant All + Harvest All <span class="small muted">${forJob(mj)}</span>`
       : `Plant <b>${esc(mc.crop)}</b> <span class="small muted">${forJob(mj)} · ${tm(mj.hours)}</span>`,
       mc.jobs.length > 1 ? `Also feeds:<ul>${mc.jobs.slice(1, 8).map(j => `<li>${j.name}${tagHtml(j)}: ${short(j.qty)}</li>`).join("")}</ul>` : "");
+    const gj = grapeJuiceText();
+    if (gj) { $("mono-plant").innerHTML += monoLi("Grape Juice", gj); $("plant-list").insertAdjacentHTML("afterbegin", `<p style="margin:0 0 8px"><b>Grape Juice today:</b> ${gj}</p>`); }
   }
+  // Grape Juice makes one planting of every plot ready at once, so each use saves that crop's whole growth time: today's
+  // uses go to the slowest crops your plan needs, each only up to the plantings it still needs (Breakfast Boost crops are
+  // instant already). knowledge/mechanics/crops.md. [{ crop, n, perRound, minutes, job }]
+  function grapeJuicePlan() {
+    let left = S.perks.grapeJuice || 0;
+    const out = [];
+    for (const c of PLANT_CROPS.filter(c => c.base > 5).sort((a, b) => b.minutes - a.minutes)) {
+      if (left < 1) break;
+      const need = Math.max(...c.jobs.map(j => j.qty)), plantings = Math.ceil(need / c.perRound), n = Math.min(left, plantings);
+      if (n < 1) continue;
+      out.push({ crop: c.crop, n, perRound: c.perRound, minutes: c.minutes, job: c.jobs.find(j => j.qty === need) });
+      left -= n;
+    }
+    return out;
+  }
+  const grapeJuiceText = () => {
+    const plan = grapeJuicePlan();
+    if (!plan.length) return "";
+    const growText = m => m < 60 ? `${Math.round(m)} min` : `${Math.round(m / 6) / 10} h`;
+    return plan.map(x => `<b>${fmt(x.n)} on ${esc(x.crop)}</b> <span class="small muted">(each saves ${growText(x.minutes)} of growing and brings ~${short(x.perRound)}; for ${x.job.quest ? "the quest " : ""}${x.job.name}, ${short(x.job.qty)} more)</span>`).join(", then ");
+  };
 
   // ---------- Best use: daily overflow ----------
   // Year-long Mega Masteries get standing chains; everything else the usual outlet pick.
@@ -3583,6 +3611,16 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   // A line from what the planner already knows, where it helps
   // Interest stops growing at cap / rate (8M a day at 1% = 800M banked); more is fine, it just earns nothing extra.
   // { need, have, auto }: auto = already enough banked, so the item ticks itself. knowledge/mechanics/silver.md
+  // Orchard fruit (at midnight) and building outputs (per drop) that still make less than your inventory cap: those are
+  // worth upgrading; anything that already fills the cap each time isn't. null = cap or production not known yet.
+  const upgradeGap = () => {
+    const cap = invCap(), ph = prod();
+    if (cap === Infinity || (!Object.keys(S.orchard || {}).length && !Object.keys(ph).length)) return null;
+    const below = [];
+    for (const [n, v] of Object.entries(S.orchard || {})) if ((v.production || 0) < cap) below.push(`${n}s ${short(v.production || 0)}`);
+    for (const [n, r] of Object.entries(ph)) { const each = r * (DROP_HOURS[n] || 1); if (r > 0 && each < cap) below.push(`${n} ${short(each)}`); }
+    return below;
+  };
   const bankNeed = () => { const b = S.bank || {}, rate = b.rate || 0.01, cap = b.cap || 8e6; return { need: cap / rate, have: b.bank, rate, cap }; };
   // Today's Town and farm pastes say what's done: those tick themselves (a place still READY stays for you to tick)
   const TOWN_OF = { wheel: "Wheel of Borgen", hut: "Borgen's Treasure Hut", lost: "Borgen's Lost & Found", cards: "House of Cards", well: "Wishing Well", vault: "The Vault", chores: "Daily Chores" };
@@ -3594,11 +3632,13 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     // Done only once this month's specials were seen and none are left (before they come out, there's nothing to finish yet)
     if (id === "special") { const m = gameDay(Date.now()).slice(0, 7); return S.specialsSeen === m && !!S.questsAt && gameDay(S.questsAt).slice(0, 7) === m && !(S.quests || []).some(q => q.section === "special"); }
     if (id === "bank") { const b = bankNeed(); return b.have != null && b.have >= b.need; }
+    if (id === "upgrade") { const g = upgradeGap(); return !!g && !g.length; }                  // everything already fills the cap
     if (id === "farm") return today(S.farmToday) && !S.farmToday.todo.length;
     if (id === "slaughter" && S.pigs) { const t = pigToday(); return !(t && t.slaughter); }   // not a pig day, or already sent
     const t = townPlace(id); return !!t && !t.ready;
   };
   const checkHint = id => {
+    if (id === "upgrade") { const g = upgradeGap(); if (g) return g.length ? `below your cap of ${short(invCap())}: ${g.slice(0, 5).map(esc).join(", ")}${g.length > 5 ? ` and ${g.length - 5} more` : ""}` : `your Orchard and buildings already fill your cap of ${short(invCap())}`; }
     if (visitDone(id)) return `opened in the game ${VISIT_DONE[id] === "month" ? "this month" : "today"}`;
     if (id === "bank") {
       const b = bankNeed();
@@ -3613,7 +3653,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       if (g && (id === "mcc" || today(S.comm))) return `${esc(g.item)} for ${esc(g.reward)}${g.pct != null ? ` · ${+g.pct.toFixed(1)}% of the goal` : ""}`;
     }
     if (id === "phr") { const n = (S.quests || []).filter(q => q.section === "personal").length; return n ? `${n} open` : ""; }
-    if (id === "gj") return S.perks.grapeJuice ? `${fmt(S.perks.grapeJuice)} a day` : "";
+    if (id === "gj") { const plan = grapeJuicePlan(); return plan.length ? `${fmt(S.perks.grapeJuice)} a day: ${plan.map(x => `${fmt(x.n)} on ${esc(x.crop)}`).join(", ")}` : S.perks.grapeJuice ? `${fmt(S.perks.grapeJuice)} a day` : ""; }
     if (id === "kabobs") return `<a href="#steak-card">Steak Market below</a>`;
     if (id === "slaughter") {
       if (S.pigs) {
