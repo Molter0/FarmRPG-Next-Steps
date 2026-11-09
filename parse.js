@@ -218,7 +218,10 @@
       if (/ (Perks|Upgrades)(\s*\(.*\))?$/i.test(l) && !/[.%]/.test(l) || /^Upgrades on Sale/i.test(l)) { block = []; continue; }   // section headings
       block.push(l);
     }
-    return { page, unlocked, forSale, misc: /^Miscellaneous Perks/im.test(text) };
+    // Points you can still spend: the number stands above its label ("40 / Points Left / 650 / Points Used"); some copies
+    // put it after on the same line ("Points Left: 40")
+    const left = text.match(/([\d,]+)[ \t]*\r?\n\s*Points Left\b/i) || text.match(/Points Left:\s*([\d,]+)/i);
+    return { page, unlocked, forSale, points: left ? toInt(left[1]) : null, misc: /^Miscellaneous Perks/im.test(text) };
   }
 
   // What the unlocked perks mean for the planner's settings. Only returns settings that page can tell us.
@@ -442,6 +445,21 @@
     return { items, slots: s ? toInt(s[1]) : null };
   }
 
+  // An item's own page: its name (the title after the last "Back"), how many you have ("My Inventory / 5,608 on hand")
+  // and its mastery count ("Mastery Progress / 877,593 / 1,000,000 Progress"; "/ ∞" once Mega Mastered). Opened from
+  // the Mastery list, it carries that list too: the item page is the one on screen. { name, onHand, mastery }
+  function parseItemPage(text) {
+    const lines = String(text || "").split(/\r?\n/).map(clean).filter(Boolean);
+    const d = lines.findIndex(l => /^Item Details$/i.test(l));
+    if (d < 0) return null;
+    let name = null;
+    for (let k = d - 1; k >= 0; k--) if (/^Back$/i.test(lines[k])) { name = lines[k + 1] || null; break; }
+    const hand = lines.slice(d).join("\n").match(/^([\d,]+) on hand$/im);
+    const mp = lines.findIndex((l, k) => k > d && /^Mastery Progress$/i.test(l));
+    const m = mp >= 0 && (lines[mp + 1] || "").match(/^([\d,]+) \/ ([\d,]+|∞) Progress/);
+    return { name, onHand: hand ? toInt(hand[1]) : null, mastery: m ? toInt(m[1]) : null };
+  }
+
   // Workshop: every recipe is "Name (N)" (N = how many you have) after its favourite heart, then one "have / need Part"
   // line per part. Gives what you have of nearly everything you craft or craft with: { have: { name: n }, recipes: n }
   function parseWorkshop(text) {
@@ -507,8 +525,14 @@
       const st = lines[k + 2] || "", left = st.match(/^([\d,]+) Left$/i);
       out[name] = { ready: /^(READY!?|Not Started)$/i.test(st) || !!left, left: left ? toInt(left[1]) : 0 };
     }
-    const b = lines.findIndex(l => l === "Bank"), amt = b >= 0 && (lines[b + 2] || "").match(/^([\d.]+)\s*([KMBTQ]?)$/i);
-    if (amt) Object.defineProperty(out, "bank", { value: Math.round(parseFloat(amt[1]) * ({ K: 1e3, M: 1e6, B: 1e9, T: 1e12, Q: 1e15 }[amt[2].toUpperCase()] || 1)), enumerable: false });
+    // The Bank's figure: "Bank / Deposit your Silver / 2.5T" in a copy; auto-read's text can put it a line further on or
+    // write it out ("2,512,000,000", "2.5T Silver"). The first "Bank" entry followed by an amount within 4 lines.
+    const amountOf = l => { const m = l.match(/^([\d.,]+)\s*([KMBTQ]?)(?:\s*Silver)?$/i); return m && /\d/.test(m[1]) ? Math.round(parseFloat(m[1].replace(/,/g, "")) * ({ K: 1e3, M: 1e6, B: 1e9, T: 1e12, Q: 1e15 }[m[2].toUpperCase()] || 1)) : null; };
+    for (let b = 0; b < lines.length; b++) {
+      if (lines[b] !== "Bank") continue;
+      const v = lines.slice(b + 1, b + 5).map(amountOf).find(x => x != null);
+      if (v != null) { Object.defineProperty(out, "bank", { value: v, enumerable: false }); break; }
+    }
     return out;
   }
   // Farm page: a building not done today shows "today" (a calendar mark) instead of its numbers: "Raptor Pen / Raise
@@ -605,6 +629,8 @@
   function detectPage(text) {
     const onScreen = PAGE_TITLES[screenTitle(text)];
     if (onScreen && onScreen[1](text)) return onScreen[0];
+    // An item's page first: opened from the Mastery list it carries that whole list, but the item is what's on screen
+    if (/^\s*[*•-]?\s*Item Details\s*$/im.test(text) && /^\s*[\d,]+ on hand\s*$/im.test(text)) return "item";
     if (/About the Pig Pen/i.test(text) && /^\s*Pigs \([\d,]+ \/ [\d,]+\)\s*$/im.test(text)) return "pigpen";   // before the farm: it carries the farm list
     if (/About the bank/i.test(text) && /Currently in Bank/i.test(text)) return "bank";
     if (/Sacrifice: /.test(text) && /Items Sacrificed/i.test(text)) return "temple";
@@ -685,7 +711,7 @@
 
   const api = { parseMastery: noChat(parseMastery), parseInventory: noChat(parseInventory), parseOrchard: noChat(parseOrchard),
     parseFarm: noChat(parseFarm), parseQuests: noChat(parseQuests), parsePerks: noChat(parsePerks), parseBuilding: noChat(parseBuilding), parseMarket: noChat(parseMarket), marketPrices, parseRequest: noChat(parseRequest), parseSteak: noChat(parseSteak), parseFriends: noChat(parseFriends), perkSettings,
-    parseExploreInfo: noChat(parseExploreInfo), parsePets: noChat(parsePets), parseTemple: noChat(parseTemple), parseCraftworks: noChat(parseCraftworks), parseWorkshop: noChat(parseWorkshop), parsePetShop: noChat(parsePetShop), parseBank: noChat(parseBank), parsePigPen: noChat(parsePigPen), parseCommunity: noChat(parseCommunity), parseTown: noChat(parseTown), parseFarmToday: noChat(parseFarmToday), detectPage: noChat(detectPage), carriedPages: noChat(carriedPages), parseSilver: noChat(parseSilver), stripChat, toInt };
+    parseExploreInfo: noChat(parseExploreInfo), parsePets: noChat(parsePets), parseTemple: noChat(parseTemple), parseCraftworks: noChat(parseCraftworks), parseWorkshop: noChat(parseWorkshop), parseItemPage: noChat(parseItemPage), parsePetShop: noChat(parsePetShop), parseBank: noChat(parseBank), parsePigPen: noChat(parsePigPen), parseCommunity: noChat(parseCommunity), parseTown: noChat(parseTown), parseFarmToday: noChat(parseFarmToday), detectPage: noChat(detectPage), carriedPages: noChat(carriedPages), parseSilver: noChat(parseSilver), stripChat, toInt };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.FRP = Object.assign(root.FRP || {}, api);
 })(typeof window !== "undefined" ? window : globalThis);

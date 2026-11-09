@@ -768,32 +768,32 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   <div id="debug-list"></div>
   <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
 </dialog>
-<script src="tools-menu.js?v=202611090826" defer></script>
-<script src="tower.js?v=202611090826"></script>
-<script src="parse.js?v=202611090826"></script>
-<script src="drops.js?v=202611090826"></script>
-<script src="reference.js?v=202611090826"></script>
-<script src="seasons.js?v=202611090826"></script>
-<script src="recipes.js?v=202611090826"></script>
-<script src="recipes-extra.js?v=202611090826"></script>
-<script src="items.js?v=202611090826"></script>
-<script src="upgrades.js?v=202611090826"></script>
-<script src="pets.js?v=202611090826"></script>
-<script src="savecode.js?v=202611090826"></script>
+<script src="tools-menu.js?v=202611090844" defer></script>
+<script src="tower.js?v=202611090844"></script>
+<script src="parse.js?v=202611090844"></script>
+<script src="drops.js?v=202611090844"></script>
+<script src="reference.js?v=202611090844"></script>
+<script src="seasons.js?v=202611090844"></script>
+<script src="recipes.js?v=202611090844"></script>
+<script src="recipes-extra.js?v=202611090844"></script>
+<script src="items.js?v=202611090844"></script>
+<script src="upgrades.js?v=202611090844"></script>
+<script src="pets.js?v=202611090844"></script>
+<script src="savecode.js?v=202611090844"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
-<script src="seeds.js?v=202611090826"></script>
-<script src="meals.js?v=202611090826"></script>
-<script src="ww.js?v=202611090826"></script>
-<script src="levels.js?v=202611090826"></script>
-<script src="quests.js?v=202611090826"></script>
-<script src="loot.js?v=202611090826"></script>
-<script src="trade.js?v=202611090826"></script>
-<script src="prices.js?v=202611090826"></script>
-<script src="npcs.js?v=202611090826"></script>
-<script src="engine.js?v=202611090826"></script>
+<script src="seeds.js?v=202611090844"></script>
+<script src="meals.js?v=202611090844"></script>
+<script src="ww.js?v=202611090844"></script>
+<script src="levels.js?v=202611090844"></script>
+<script src="quests.js?v=202611090844"></script>
+<script src="loot.js?v=202611090844"></script>
+<script src="trade.js?v=202611090844"></script>
+<script src="prices.js?v=202611090844"></script>
+<script src="npcs.js?v=202611090844"></script>
+<script src="engine.js?v=202611090844"></script>
 <script>
 (function () {
-  const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parseWorkshop, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
+  const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parseWorkshop, parseItemPage, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
   // A new visitor starts with no paid perks (the engine's DEFAULT_PERKS assume all of them); pastes and ticks fill them in
   const START_PERKS = { ...DEFAULT_PERKS, ironDepot: false, runecube: false, lemonSqueezer: false, cinnamonSticks: false, sprintShoes: 0, reinforcedNetting: false,
     fishingTrawl: false, wanderer: 0, resourceSaver: 0, orchardNoon: 0, antlerNoon: 0, sellBonus: 0, craftSilverCut: 0, friendBonus: 0, grapeJuice: 2 };
@@ -1026,8 +1026,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
         const pr = parsePerks(text), got = perkSettings(pr);
         S.perkPages = { ...(S.perkPages || {}), [kind]: got };
         // What's for sale and what you own, for "Perks to get next" (points left: the Perks page's own count)
-        const left = String(text).match(/Points Left\s+([\d,]+)/i);
-        S.perkShop = { ...(S.perkShop || {}), [kind]: { unlocked: pr.unlocked, forSale: pr.forSale, misc: pr.misc, points: left ? +left[1].replace(/,/g, "") : null, at: Date.now() } };
+        S.perkShop = { ...(S.perkShop || {}), [kind]: { unlocked: pr.unlocked, forSale: pr.forSale, misc: pr.misc, points: pr.points, at: Date.now() } };
         const pp = S.perkPages, add = k => ((pp.perks || {})[k] || 0) + ((pp.supply || {})[k] || 0);
         Object.assign(S.perks, got, { cropGrowthCut: add("cropGrowthCut"), resourceSaver: add("resourceSaver"), cornGrowthCut: add("cornGrowthCut"), cookFaster: add("cookFaster"), sellBonus: add("sellBonus"), craftSilverCut: add("craftSilverCut") });
         // Friendship gift bonus (knowledge/mechanics/friendship.md)
@@ -1093,6 +1092,19 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
           S.pets = { items: r.items, at: Date.now() }; done = true;
           const over = inv.cap ? names.filter(n => r.items[n].have + r.items[n].found > inv.cap).length : null;
           msg = `<div class="note" style="border-color:var(--good)">Read your pet items: ${fmt(names.length)} items${over != null ? `, ${fmt(over)} would go over your cap` : " (paste My Inventory once so the planner knows your cap)"}. See Best use.</div>`;
+        }
+      } else if (kind === "item") {
+        // One item's page (where you craft, and claim its mastery): that item's mastery count and how many you have
+        const r = parseItemPage(text), known = r && r.name && (r.name in (window.ITEMS || {}) || (S.mastery && r.name in S.mastery.items));
+        if (!known) msg = warn("That item page couldn't be read: its name wasn't found.");
+        else {
+          if (r.mastery != null && S.mastery) S.mastery.items[r.name] = r.mastery;
+          if (r.onHand != null) {
+            const inv = S.inventory || (S.inventory = { items: {}, cap: null, at: Date.now() });
+            inv.items[r.name] = { ...(inv.items[r.name] || {}), count: r.onHand, atMax: !!inv.cap && r.onHand >= inv.cap };
+          }
+          done = true;
+          msg = `<div class="note" style="border-color:var(--good)">Read ${esc(r.name)}: ${r.onHand != null ? `${fmt(r.onHand)} on hand` : ""}${r.mastery != null ? `${r.onHand != null ? ", " : ""}mastery ${fmt(r.mastery)}` : ""}.</div>`;
         }
       } else if (kind === "workshop") {
         // What you have of everything the Workshop lists (made things and their parts): counts only, the rest of the
@@ -1256,7 +1268,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   // The last few states before a paste, kept on this device (not in save codes)
   const UNDO_STORE = "frp-undo", UNDO_MAX = 3;
   const PAGE_NAME = { mastery: "Mastery Progress", inventory: "My Inventory", farm: "farm page", perks: "Perks", supply: "Farm Supply perks (Town)", friends: "Friendship",
-    steak: "Steak Market", pets: "All Pet Items", temple: "Temple of Reward", craftworks: "Craftworks", workshop: "Workshop", petshop: "Pet Shop", bank: "Bank", town: "Town", pigpen: "Pig Pen", "explore-info": "Exploring Effectiveness", request: "request page", market: "Farmer's Market", building: "building page", orchard: "Orchard", quests: "Help Needed" };
+    steak: "Steak Market", pets: "All Pet Items", temple: "Temple of Reward", craftworks: "Craftworks", workshop: "Workshop", item: "item page", petshop: "Pet Shop", bank: "Bank", town: "Town", pigpen: "Pig Pen", "explore-info": "Exploring Effectiveness", request: "request page", market: "Farmer's Market", building: "building page", orchard: "Orchard", quests: "Help Needed" };
   const undoList = () => { try { return JSON.parse(localStorage.getItem(UNDO_STORE)) || []; } catch (e) { return []; } };
   function pushUndo(label, state) {
     let list = [...undoList(), { label, at: Date.now(), S: state }].slice(-UNDO_MAX);
@@ -3764,7 +3776,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     return out.join("") + $("mono-drinks").innerHTML + $("mono-best").innerHTML;
   }
   // The title on screen: the line after the last "Back" in auto-read's text ("Back / Workshop / Back / Craftworks")
-  const screenTitleOf = text => { const ls = String(text || "").split(/\r?\n/).map(l => l.trim()); const k = ls.lastIndexOf("Back"); return k >= 0 && ls[k + 1] || null; };
+  const screenTitleOf = text => { const ls = String(text || "").split(/\r?\n/).map(l => l.trim().replace(/^\[([^\]]*)\]\([^)]*\)$/, "$1")); const k = ls.lastIndexOf("Back"); return k >= 0 && ls[k + 1] || null; };
   const titleAt = {};                                                   // game path → its on-screen title
   const placeOf = title => { const t = String(title || "").toLowerCase(); return Object.keys(DROPS.locs).find(l => l.toLowerCase() === t || l.toLowerCase() === "the " + t) || null; };
   function herePage(path) {
@@ -3882,7 +3894,9 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       for (const perk of sh.forSale || []) {
         // XP for a skill you've maxed does nothing
         const sk = XP_SKILL(perk.desc), lv = sk && (p.skills || {})[sk];
-        if (sk && lv >= 99) { out.skipped.push(perk); continue; }
+        if (sk && lv >= 99) { out.skipped.push({ ...perk, why: "xp" }); continue; }
+        // Inventory cap for gold: the Storehouse grows the cap every day for free, so gold is almost never worth it
+        if (/Inventory Cap/i.test(perk.name)) { out.skipped.push({ ...perk, why: "cap" }); continue; }
         const d = perkDelta(kind, perk), perks = { ...S.perks };
         for (const [k, v] of Object.entries(d)) perks[k] = typeof v === "number" ? (S.perks[k] || 0) + v : v;
         const capUp = +((perk.name.match(/^\+([\d,]+) Inventory Cap/i) || [])[1] || "0").replace(/,/g, "");
@@ -3927,7 +3941,8 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     const rowsFor = (unit, label, have) => { const r = perkRows(n[unit], unit); return r.html ? monoLi(label + (have != null ? ` <span class="small">(you have ${fmt(have)})</span>` : ""), r.html, r.more) : ""; };
     $("perks-list").innerHTML = (sh.perks ? rowsFor("points", "With points", pts) : monoLi("With points", `<span class="muted">${getPage("Paste", "Open")} the Perks page</span>`))
       + (sh.supply ? rowsFor("gold", "With gold", S.gold) : monoLi("With gold", `<span class="muted">${getPage("Paste", "Open")} the Farm Supply perks page (in Town)</span>`))
-      + (n.skipped.length ? `<li class="small muted">Left out: XP perks for skills you've maxed (${n.skipped.map(x => esc(x.name)).join(", ")}).</li>` : "");
+      + (n.skipped.some(x => x.why === "xp") ? `<li class="small muted">Left out: XP perks for skills you've maxed (${n.skipped.filter(x => x.why === "xp").map(x => esc(x.name)).join(", ")}).</li>` : "")
+      + (n.skipped.some(x => x.why === "cap") ? `<li class="small muted">Left out: inventory cap for gold. Your Storehouse raises the cap every day${S.perks.capPerDay > 0 ? ` (+${fmt(S.perks.capPerDay)} a day)` : ""}; upgrade it there instead.</li>` : "");
   }
   // ---------- Reference (reference.js, built from knowledge/ by tools/build-reference.js) ----------
   // A small Markdown reader for the notes: headings, lists, tables, bold, code, links, [[other note]] links and

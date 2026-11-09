@@ -357,3 +357,37 @@ console.log("parse tests passed");
   const sup = parsePerks(fs.readFileSync(path.join(__dirname, "fixtures", "supply-trimmed.txt"), "utf8"));
   assert.ok(sup.forSale.length >= 1 && sup.forSale.every(x => x.unit === "gold" && x.cost > 0));
 }
+
+// Points left on the Perks page: the number above its label, not the "Points Used" one after it
+{
+  const { parsePerks } = require("../parse.js");
+  assert.strictEqual(parsePerks(fs.readFileSync(path.join(__dirname, "fixtures", "perks-trimmed.txt"), "utf8")).points, 40);
+  assert.strictEqual(parsePerks("Points Left: 12\nPoints Used: 600\nPerks Avail\nFarming Perks").points, 12);
+}
+
+// An item's own page, opened from the Mastery list (which it carries): the item wins; its name, count on hand and
+// mastery count are read (made-up numbers; a copy with links, and auto-read's plain text)
+{
+  const { detectPage, parseItemPage } = require("../parse.js"), nl = "\n";
+  const list = ["So far, you have 12 items Mastered, 8 items Grand Mastered and 3 items Mega Mastered", "Mastery In-Progress",
+    ...Array.from({ length: 6 }, (_, i) => [`* Thing ${i}`, `${5000 + i} / 10,000 Progress`, "50% Track"]).flat()];
+  const copy = ["[Back](https://farmrpg.com/x)", "Item Mastery", "[Back](https://farmrpg.com/x)", "Steel", ...list, "Heavier than feathers", " Item Details",
+    "* My Inventory ", "1,234 on hand", "1,234", "* Mastery Progress ", "456,789 / 1,000,000 Progress", "Tier V", " Crafting Recipe"].join(nl);
+  assert.strictEqual(detectPage(copy), "item");
+  assert.deepStrictEqual(parseItemPage(copy), { name: "Steel", onHand: 1234, mastery: 456789 });
+  const plain = ["Back", "Item Mastery", "Back", "Board", ...list.map(l => l.replace(/^\* /, "")), "Item Details", "My Inventory", "9,850 on hand", "9,850",
+    "Mastery Progress", "11,910,274 / ∞ Progress", "Complete!"].join(nl);
+  assert.strictEqual(detectPage(plain), "item");
+  assert.deepStrictEqual(parseItemPage(plain), { name: "Board", onHand: 9850, mastery: 11910274 });
+  assert.strictEqual(detectPage(list.join(nl)), "mastery");                         // the list on its own is still the Mastery page
+}
+
+// Town's Bank figure in the forms auto-read can give: written out, with "Silver", a line further on
+{
+  const { parseTown } = require("../parse.js"), nl = "\n";
+  const at = rest => parseTown(["Finance & Investing District", "Bank", ...rest].join(nl)).bank;
+  assert.strictEqual(at(["Deposit your Silver", "2.5T"]), 2.5e12);
+  assert.strictEqual(at(["Deposit your Silver", "2,512,000,000"]), 2512000000);
+  assert.strictEqual(at(["Deposit your Silver", "Interest daily", "800M Silver"]), 8e8);
+  assert.strictEqual(parseTown(["Bank", "Deposit your Silver"].join(nl)).bank, undefined);
+}
