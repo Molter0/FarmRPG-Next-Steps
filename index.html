@@ -202,7 +202,11 @@ header p { margin: 0; color: var(--muted); }
   padding: 5px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); }
 #quick-ok { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: var(--good); font-weight: 700; opacity: 0; transition: opacity .15s; pointer-events: none; }
 #quick-ok.show { opacity: 1; }
-#quick-msg { max-width: 260px; }
+.quick-col { position: relative; }
+#quick-msg { position: absolute; top: calc(100% + 4px); right: 0; width: max(100%, 260px); max-width: min(360px, calc(100vw - 32px)); box-sizing: border-box; z-index: 40;
+  padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: 0 4px 14px rgb(0 0 0 / .12);
+  opacity: 0; visibility: hidden; transition: opacity .35s ease, visibility 0s linear .35s; }
+#quick-msg.show { opacity: 1; visibility: visible; transition: opacity .35s ease, visibility 0s; }
 .here-card { border-left: 4px solid var(--good); }
 body.auto .no-auto, body:not(.auto) .only-auto { display: none; }
 #here-body ul { margin: 4px 0 0; padding-left: 20px; }
@@ -331,7 +335,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   main { padding-bottom: 84px; }
   .head-tools { width: 100%; }
   .quick-col { flex: 1; max-width: none; }
-  #quick-msg { max-width: none; }
+  #quick-msg { width: 100%; max-width: none; }
 }
 @media (pointer: coarse) { button:not(.fold), select { min-height: 40px; } }
 /* Good-bad bar: red (bad) to green (good); Steaks and Kabobs: blue = buy (low), green = sell (high) */
@@ -381,7 +385,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
         <option value="paper">Paper</option>
       </select>
     <div class="quick-wrap"><textarea id="quick-paste" rows="1" placeholder="Quick paste: update a page" aria-label="Quick paste: paste any game page to update it without going to Setup"></textarea><span id="quick-ok" aria-hidden="true">✓</span></div>
-    <div id="quick-msg" class="small" hidden></div>
+    <div id="quick-msg" class="small" role="status"></div>
     </div>
     <button type="button" id="gear" aria-label="App settings" title="App settings: theme, detail, layout, save and load">⚙</button>
     <span id="tools-menu"></span>
@@ -768,29 +772,29 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   <div id="debug-list"></div>
   <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
 </dialog>
-<script src="tools-menu.js?v=202611090844" defer></script>
-<script src="tower.js?v=202611090844"></script>
-<script src="parse.js?v=202611090844"></script>
-<script src="drops.js?v=202611090844"></script>
-<script src="reference.js?v=202611090844"></script>
-<script src="seasons.js?v=202611090844"></script>
-<script src="recipes.js?v=202611090844"></script>
-<script src="recipes-extra.js?v=202611090844"></script>
-<script src="items.js?v=202611090844"></script>
-<script src="upgrades.js?v=202611090844"></script>
-<script src="pets.js?v=202611090844"></script>
-<script src="savecode.js?v=202611090844"></script>
+<script src="tools-menu.js?v=202611090848" defer></script>
+<script src="tower.js?v=202611090848"></script>
+<script src="parse.js?v=202611090848"></script>
+<script src="drops.js?v=202611090848"></script>
+<script src="reference.js?v=202611090848"></script>
+<script src="seasons.js?v=202611090848"></script>
+<script src="recipes.js?v=202611090848"></script>
+<script src="recipes-extra.js?v=202611090848"></script>
+<script src="items.js?v=202611090848"></script>
+<script src="upgrades.js?v=202611090848"></script>
+<script src="pets.js?v=202611090848"></script>
+<script src="savecode.js?v=202611090848"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
-<script src="seeds.js?v=202611090844"></script>
-<script src="meals.js?v=202611090844"></script>
-<script src="ww.js?v=202611090844"></script>
-<script src="levels.js?v=202611090844"></script>
-<script src="quests.js?v=202611090844"></script>
-<script src="loot.js?v=202611090844"></script>
-<script src="trade.js?v=202611090844"></script>
-<script src="prices.js?v=202611090844"></script>
-<script src="npcs.js?v=202611090844"></script>
-<script src="engine.js?v=202611090844"></script>
+<script src="seeds.js?v=202611090848"></script>
+<script src="meals.js?v=202611090848"></script>
+<script src="ww.js?v=202611090848"></script>
+<script src="levels.js?v=202611090848"></script>
+<script src="quests.js?v=202611090848"></script>
+<script src="loot.js?v=202611090848"></script>
+<script src="trade.js?v=202611090848"></script>
+<script src="prices.js?v=202611090848"></script>
+<script src="npcs.js?v=202611090848"></script>
+<script src="engine.js?v=202611090848"></script>
 <script>
 (function () {
   const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parseWorkshop, parseItemPage, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
@@ -912,8 +916,8 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     // Auto-read hands over every page: one it couldn't use stays quiet (Setup's auto-read line says "skipped")
     if (autoQuiet && !ok) { autoQuiet = "failed"; main.value = ""; $("status").innerHTML = ""; $("paste-clear").hidden = true; return; }
     $("quick-ok").classList.toggle("show", ok);
-    $("quick-msg").innerHTML = msg; $("quick-msg").hidden = !msg;              // what was read (or what went wrong)
-    quickT = setTimeout(() => { $("quick-ok").classList.remove("show"); $("quick-msg").hidden = true; }, /data-undo-paste/.test(msg) ? 30000 : ok ? 5000 : 10000);
+    $("quick-msg").innerHTML = msg; $("quick-msg").classList.toggle("show", !!msg);              // what was read (or what went wrong)
+    quickT = setTimeout(() => { $("quick-ok").classList.remove("show"); $("quick-msg").classList.remove("show"); }, /data-undo-paste/.test(msg) ? 30000 : ok ? 5000 : 10000);
   });
   // ---------- Auto-read (farmrpg-auto-read.user.js) ----------
   // The userscript keeps the text of each game page the player opens and hands it to this tab (same window, so same
@@ -982,7 +986,9 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
         const n = Object.keys(r.items).length;
         if (!n) msg = warn("No mastery lines were found. Open every tier on the Mastery Progress page, then copy again.");
         else {
-          S.mastery = { items: r.items, tower: r.tower, skills: r.skills, totals: r.totals, at: Date.now() };
+          // The list alone (no Home blocks: skills, Tower, totals) keeps what an earlier read found for those
+          const was = S.mastery || {};
+          S.mastery = { items: r.items, tower: r.tower || was.tower || null, skills: Object.keys(r.skills).length ? r.skills : was.skills || {}, totals: r.totals || was.totals || null, at: Date.now() };
           S.changes = []; S.stepsDone = [];                                                  // real numbers replace any Done ticks
           S.manual = {};
           done = true;                                                     // read: clear the box even if a warning follows
@@ -1315,7 +1321,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     e.preventDefault();
     const before = JSON.stringify(S), kind = detectPage(text);
     const q = $("quick-paste"); q.value = text; q.dispatchEvent(new Event("input"));
-    const msg = $("quick-msg").hidden ? "" : $("quick-msg").innerHTML;
+    const msg = $("quick-msg").classList.contains("show") ? $("quick-msg").innerHTML : "";
     toast(msg || `<b class="ok">✓</b> Read: ${esc(PAGE_NAME[kind] || "page")}${JSON.stringify(S) === before ? " (nothing new)" : ""}.`);
   });
   const warn = s => `<div class="note">${s}</div>`;
@@ -3682,8 +3688,13 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       if (gets.length) out.push(monoLi("Wishing Well", `Toss up to <b>${fmt(gets[0].tosses)}</b> for ${esc(gets[0].want)} (${gets[0].ch}% a toss; your quests are short ${fmt(gets[0].miss)})${
         gets.length > 1 ? `<span class="small muted"> · also ${gets.slice(1, 3).map(g => esc(g.want)).join(", ")}</span>` : ""}`));
     }
-    const tower = towerTipText(item, (p.items || {})[item]);
-    if (tower) out.push(monoLi("Tower", `${tower}: gather it rather than buying it, every one counts`));
+    // The Tower: only when the level that needs it is close (within the 30 levels Do these next looks at), with what's left
+    // and what that costs. The mastery count itself the game page already shows.
+    const count = (p.items || {})[item] || 0, lvl = towerLevelFor(item, count);
+    if (isFinite(lvl) && p.level != null && lvl - p.level <= 30) {
+      const u = O.towerUse[item].find(x => x.level === lvl), left = (u.tier === "mm" ? 1e6 : 1e5) - count;
+      out.push(monoLi("Tower", `Level ${fmt(lvl)} needs its <b>${tierName(u.tier)}</b>: ${short(left)} to go${itemEffort(item, left)}`));
+    }
     if (spare) {
       const keep = keepFor(item, p), price = sellPrice(item, p), gift = giftTo(item);
       if (keep) out.push(monoLi("The rest", `<b>Keep ${short(spare)}</b>: ${keep}`));

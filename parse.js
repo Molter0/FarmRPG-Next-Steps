@@ -46,7 +46,9 @@
 
     // Skill levels from the "My skills" block when it's there: other text on the page (a recipe's "Crafting Level 5")
     // must not win just by coming first
-    const skillText = plain.includes("My skills") ? plain.slice(plain.indexOf("My skills")) : plain;
+    // Only that block: a page without it (the Mastery list carried by an item page, whose recipe says "Requires Crafting
+    // Level 15") has no skill levels to give
+    const skillText = plain.includes("My skills") ? plain.slice(plain.indexOf("My skills")) : "";
     const skills = {};
     for (const s of SKILLS) {
       const sm = skillText.match(new RegExp("\\b" + s + " Level (\\d+)"));

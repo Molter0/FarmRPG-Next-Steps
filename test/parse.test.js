@@ -391,3 +391,12 @@ console.log("parse tests passed");
   assert.strictEqual(at(["Deposit your Silver", "Interest daily", "800M Silver"]), 8e8);
   assert.strictEqual(parseTown(["Bank", "Deposit your Silver"].join(nl)).bank, undefined);
 }
+
+// Skill levels only from the "My skills" block: a Mastery list without it (carried by an item page whose recipe says
+// "Requires Crafting Level 15") gives none
+{
+  const nl = "\n";
+  const list = ["So far, you have 12 items Mastered, 8 items Grand Mastered and 3 items Mega Mastered", "Craftable", "Requires Crafting Level 15",
+    ...Array.from({ length: 6 }, (_, i) => [`Thing ${i}`, `${5000 + i} / 10,000 Progress`]).flat()].join(nl);
+  assert.deepStrictEqual(parseMastery(list).skills, {});
+}
