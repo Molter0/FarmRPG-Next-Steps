@@ -772,29 +772,29 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   <div id="debug-list"></div>
   <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
 </dialog>
-<script src="tools-menu.js?v=202611090948" defer></script>
-<script src="tower.js?v=202611090948"></script>
-<script src="parse.js?v=202611090948"></script>
-<script src="drops.js?v=202611090948"></script>
-<script src="reference.js?v=202611090948"></script>
-<script src="seasons.js?v=202611090948"></script>
-<script src="recipes.js?v=202611090948"></script>
-<script src="recipes-extra.js?v=202611090948"></script>
-<script src="items.js?v=202611090948"></script>
-<script src="upgrades.js?v=202611090948"></script>
-<script src="pets.js?v=202611090948"></script>
-<script src="savecode.js?v=202611090948"></script>
+<script src="tools-menu.js?v=202611091006" defer></script>
+<script src="tower.js?v=202611091006"></script>
+<script src="parse.js?v=202611091006"></script>
+<script src="drops.js?v=202611091006"></script>
+<script src="reference.js?v=202611091006"></script>
+<script src="seasons.js?v=202611091006"></script>
+<script src="recipes.js?v=202611091006"></script>
+<script src="recipes-extra.js?v=202611091006"></script>
+<script src="items.js?v=202611091006"></script>
+<script src="upgrades.js?v=202611091006"></script>
+<script src="pets.js?v=202611091006"></script>
+<script src="savecode.js?v=202611091006"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
-<script src="seeds.js?v=202611090948"></script>
-<script src="meals.js?v=202611090948"></script>
-<script src="ww.js?v=202611090948"></script>
-<script src="levels.js?v=202611090948"></script>
-<script src="quests.js?v=202611090948"></script>
-<script src="loot.js?v=202611090948"></script>
-<script src="trade.js?v=202611090948"></script>
-<script src="prices.js?v=202611090948"></script>
-<script src="npcs.js?v=202611090948"></script>
-<script src="engine.js?v=202611090948"></script>
+<script src="seeds.js?v=202611091006"></script>
+<script src="meals.js?v=202611091006"></script>
+<script src="ww.js?v=202611091006"></script>
+<script src="levels.js?v=202611091006"></script>
+<script src="quests.js?v=202611091006"></script>
+<script src="loot.js?v=202611091006"></script>
+<script src="trade.js?v=202611091006"></script>
+<script src="prices.js?v=202611091006"></script>
+<script src="npcs.js?v=202611091006"></script>
+<script src="engine.js?v=202611091006"></script>
 <script>
 (function () {
   const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parseWorkshop, parseItemPage, parseHome, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
@@ -1103,14 +1103,14 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
         const r = parseTown(text), n = Object.keys(r).length;
         if (!n) msg = warn("Nothing was read from the Town page. Copy the whole page and try again.");
         else { S.town = { places: r, day: gameDay(Date.now()) }; done = true;
-          if (r.bank && !(S.bank && S.bank.bank != null && Math.abs(S.bank.bank - r.bank) < r.bank * 0.05)) S.bank = { ...(S.bank || {}), bank: r.bank, at: Date.now(), rounded: true };
+          if (r.bank && !(S.bank && S.bank.bank != null && Math.abs(S.bank.bank - r.bank) < r.bank * 0.05)) S.bank = { ...(S.bank || {}), bank: r.bank, at: Date.now(), rounded: true, from: "Town" };
           const open = Object.entries(r).filter(([, v]) => v.ready).map(([k]) => esc(k));
           msg = `<div class="note" style="border-color:var(--good)">Read the Town page: ${open.length ? `still to do today: ${open.join(", ")}` : "the daily places are done"}. See the Checklist tab.</div>`; }
       } else if (kind === "bank") {
         const r = parseBank(text);
         if (!r) msg = warn("Nothing was read from the bank page. Copy the whole page and try again.");
         else {
-          S.bank = { ...r, at: Date.now() }; done = true;
+          S.bank = { ...r, at: Date.now(), from: "the Bank page" }; done = true;
           if (r.onHand != null) { S.silver = r.onHand; S.silverAt = Date.now(); }        // "Deposit All" is the silver on hand
           msg = `<div class="note" style="border-color:var(--good)">Read the bank${r.bank != null ? `: ${short(r.bank)} banked` : ""}${r.onHand != null ? `, ${short(r.onHand)} on hand` : ""}. See the Checklist tab.</div>`;
         }
@@ -3643,7 +3643,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     if (id === "bank") {
       const b = bankNeed();
       if (b.have == null) return `keep ${short(b.need)} banked for the full ${short(b.cap)} a day at ${+(b.rate * 100).toFixed(2)}% (paste the Bank page to check)`;
-      return b.have >= b.need ? `full interest already: ${short(b.need)} is enough, you have ${short(b.have)}` : `deposit ${short(b.need - b.have)} more for the full ${short(b.cap)} a day`;
+      return b.have >= b.need ? `full interest already: ${short(b.need)} is enough, you have ${short(b.have)}${S.bank && S.bank.at ? ` <span class="muted">(balance ${short(b.have)}, from ${S.bank.from || "a page"} ${agoText(S.bank.at)})</span>` : ""}` : `deposit ${short(b.need - b.have)} more for the full ${short(b.cap)} a day${S.bank && S.bank.at ? ` <span class="muted">(balance ${short(b.have)}, from ${S.bank.from || "a page"} ${agoText(S.bank.at)})</span>` : ""}`;
     }
     if (id === "well") { const t = townPlace("well"); return `${t && t.left ? `${fmt(t.left)} left · ` : ""}<a href="#ww" data-go="quests">today's tosses</a>`; }
     if (id === "chores") { const t = townPlace("chores"); if (t && t.left) return `${fmt(t.left)} left today`; }
