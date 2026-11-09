@@ -33,7 +33,7 @@
     }
     // A tier only counts as collapsed if it never appears expanded anywhere in the paste
     const closed = new Set(), open = new Set();
-    const cre = /(Tier\s+[IVX]+(?:\s*\([A-Z]+\))?|No Tier|Mega Mastered)\s*chevron_(right|down|up)/g;
+    const cre = /(Tier\s+[IVX]+(?:\s*\([A-Z]+\))?|No Tier|Mega Mastered)\s*chevron_(right|down|up)/gi;
     let m;
     while ((m = cre.exec(text))) (m[2] === "right" ? closed : open).add(m[1].replace(/\s+/g, " "));
     const collapsed = [...closed].filter(t => !open.has(t));
@@ -41,16 +41,14 @@
     // Home block: "The Tower / Unused Points: N / Level N" (Unused Points here = AK, single points)
     const plain = lines.join("\n").replace(/\s+/g, " ");
     let tower = null;
-    const tm = plain.match(/The Tower\b.{0,120}?Unused Points:\s*([\d,]+).{0,120}?Level\s+([\d,]+)/);
+    // Headings can come through in capitals ("THE TOWER", "MY SKILLS": auto-read takes the text as the game shows it)
+    const tm = plain.match(/The Tower\b.{0,120}?Unused Points:\s*([\d,]+).{0,120}?Level\s+([\d,]+)/i);
     if (tm) tower = { ak: toInt(tm[1]), level: toInt(tm[2]) };
 
-    // Skill levels from the "My skills" block when it's there: other text on the page (a recipe's "Crafting Level 5")
-    // must not win just by coming first
-    // Only that block: a page without it (the Mastery list carried by an item page, whose recipe says "Requires Crafting
-    // Level 15") has no skill levels to give
-    // The block itself: from "My skills" to the next section (or ~300 characters), so a carried page further on (a
-    // recipe's "Requires Crafting Level 15") can't be read as yours. "Crafting Level 99", "Crafting Lv 99" or "Crafting 99"
-    const at = plain.indexOf("My skills"), rest = at < 0 ? "" : plain.slice(at + 9);
+    // Skill levels only from the "My skills" block: from its heading to the next section (or ~300 characters), so other
+    // text (a carried recipe's "Requires Crafting Level 15") can't be read as yours. A page without the block has none.
+    // "Crafting Level 99", "Crafting Lv 99" or "Crafting 99"
+    const at = plain.search(/My skills/i), rest = at < 0 ? "" : plain.slice(at + 9);
     const end = rest.search(/Perks, Mastery|So far, you have|Unlock Perks|Mastery Progress|Requires /i);
     const skillText = rest.slice(0, Math.min(end < 0 ? 300 : end, 300));
     const skills = {};
@@ -61,7 +59,7 @@
 
     // "So far, you have 246 items Mastered, 168 items Grand Mastered and 69 items Mega Mastered"
     let totals = null;
-    const cm = plain.match(/([\d,]+) items Mastered, ([\d,]+) items Grand Mastered and ([\d,]+) items Mega Mastered/);
+    const cm = plain.match(/([\d,]+) items Mastered, ([\d,]+) items Grand Mastered and ([\d,]+) items Mega Mastered/i);
     if (cm) totals = { m: toInt(cm[1]), gm: toInt(cm[2]), mm: toInt(cm[3]) };
 
     const looksLikeMastery = /Progress/.test(text) && /(Mastery In-Progress|Tier\s+[IVX]+|Mastered)/i.test(text);
@@ -463,7 +461,26 @@
     const hand = lines.slice(d).join("\n").match(/^([\d,]+) on hand$/im);
     const mp = lines.findIndex((l, k) => k > d && /^Mastery Progress$/i.test(l));
     const m = mp >= 0 && (lines[mp + 1] || "").match(/^([\d,]+) \/ ([\d,]+|∞) Progress/);
-    return { name, onHand: hand ? toInt(hand[1]) : null, mastery: m ? toInt(m[1]) : null };
+    // What you have of the things around it. "Crafting Recipe": each part as name / description / "have / need";
+    // "Crafting Use": each thing it goes into as name / "Nx Part" lines / "have / cap". The planner keeps the names it
+    // knows (the line two above a count is the name, or the one just above when there's no description).
+    const section = head => {
+      const s = lines.findIndex((l, k) => k > d && head.test(l));
+      if (s < 0) return [];
+      const e = lines.findIndex((l, k) => k > s && /^(Crafting Recipe|Crafting Use|Cooking Recipe|Cooking Use|Locksmith Opens|Consume a meal)$/i.test(l));
+      return lines.slice(s + 1, e < 0 ? undefined : e);
+    };
+    const count = l => l.match(/^([\d,]+) \/ ([\d,]+)$/);
+    const parts = [], uses = [];
+    const rec = section(/^Crafting Recipe$/i);
+    rec.forEach((l, k) => { const c = count(l); if (c && k >= 1) parts.push({ names: [rec[k - 2], rec[k - 1]].filter(x => x && !count(x)), have: toInt(c[1]), need: toInt(c[2]) }); });
+    const use = section(/^Crafting Use$/i);
+    use.forEach((l, k) => {
+      const c = count(l); if (!c) return;
+      let j = k - 1; while (j >= 0 && /^\d+x /i.test(use[j])) j--;
+      if (j >= 0 && !count(use[j])) uses.push({ name: use[j], have: toInt(c[1]) });
+    });
+    return { name, onHand: hand ? toInt(hand[1]) : null, mastery: m ? toInt(m[1]) : null, parts, uses };
   }
 
   // Home: "My skills" (your levels), "The Tower / Unused Points: N / Level N" and "Unlock Perks / Unused Points: N" (perk
@@ -668,11 +685,11 @@
     // A building's own page also carries the farm sidebar, so check for its sentence first
     { const b = parseBuilding(text); if (b.buildings.length || b.cap) return "building"; }
     if (/Around Your Farm/i.test(text)) return "farm";
-    if (/cannot have more than [\d,]+ of any single thing|Inventory Stats/.test(text)) return "inventory";
+    if (/cannot have more than [\d,]+ of any single thing|Inventory Stats/i.test(text)) return "inventory";
     // Mastery Progress: many "n / m Progress" lines, or its "So far, you have N items Mastered" line. A single progress
     // line is an item's own page (its mastery bar), which auto-read hands over too: that must not replace the mastery list
     if ((String(text).match(/[\d,]+\s*\/\s*([\d,]+|∞)\s*Progress/g) || []).length >= 5
-      || /[\d,]+ items Mastered, [\d,]+ items Grand Mastered/.test(text)) return "mastery";
+      || /[\d,]+ items Mastered, [\d,]+ items Grand Mastered/i.test(text)) return "mastery";
     // One request's page carries the Help Needed sidebar, so check for its own headings first
     if (/^\s*Items Requested\s*$/im.test(text) && /^\s*Rewards\s*$/im.test(text)) return "request";
     // The Town page last: its list also shows on the Bank and Temple pages (wide screens), which are read first

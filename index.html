@@ -772,29 +772,29 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   <div id="debug-list"></div>
   <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
 </dialog>
-<script src="tools-menu.js?v=202611090907" defer></script>
-<script src="tower.js?v=202611090907"></script>
-<script src="parse.js?v=202611090907"></script>
-<script src="drops.js?v=202611090907"></script>
-<script src="reference.js?v=202611090907"></script>
-<script src="seasons.js?v=202611090907"></script>
-<script src="recipes.js?v=202611090907"></script>
-<script src="recipes-extra.js?v=202611090907"></script>
-<script src="items.js?v=202611090907"></script>
-<script src="upgrades.js?v=202611090907"></script>
-<script src="pets.js?v=202611090907"></script>
-<script src="savecode.js?v=202611090907"></script>
+<script src="tools-menu.js?v=202611090923" defer></script>
+<script src="tower.js?v=202611090923"></script>
+<script src="parse.js?v=202611090923"></script>
+<script src="drops.js?v=202611090923"></script>
+<script src="reference.js?v=202611090923"></script>
+<script src="seasons.js?v=202611090923"></script>
+<script src="recipes.js?v=202611090923"></script>
+<script src="recipes-extra.js?v=202611090923"></script>
+<script src="items.js?v=202611090923"></script>
+<script src="upgrades.js?v=202611090923"></script>
+<script src="pets.js?v=202611090923"></script>
+<script src="savecode.js?v=202611090923"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
-<script src="seeds.js?v=202611090907"></script>
-<script src="meals.js?v=202611090907"></script>
-<script src="ww.js?v=202611090907"></script>
-<script src="levels.js?v=202611090907"></script>
-<script src="quests.js?v=202611090907"></script>
-<script src="loot.js?v=202611090907"></script>
-<script src="trade.js?v=202611090907"></script>
-<script src="prices.js?v=202611090907"></script>
-<script src="npcs.js?v=202611090907"></script>
-<script src="engine.js?v=202611090907"></script>
+<script src="seeds.js?v=202611090923"></script>
+<script src="meals.js?v=202611090923"></script>
+<script src="ww.js?v=202611090923"></script>
+<script src="levels.js?v=202611090923"></script>
+<script src="quests.js?v=202611090923"></script>
+<script src="loot.js?v=202611090923"></script>
+<script src="trade.js?v=202611090923"></script>
+<script src="prices.js?v=202611090923"></script>
+<script src="npcs.js?v=202611090923"></script>
+<script src="engine.js?v=202611090923"></script>
 <script>
 (function () {
   const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parseWorkshop, parseItemPage, parseHome, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
@@ -905,7 +905,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   // Pasting while the old text is still fading: drop the old text first so the two don't mix
   $("paste").addEventListener("paste", () => { if (pasteT.length) { pasteStop(); $("paste").value = ""; } });
   // Quick paste (header, every tab): runs the same reader as the Setup paste box, then shows the result next to itself
-  let quickT = null, autoQuiet = false, autoReadAt = null;              // autoQuiet: an auto-read page is being read; autoReadAt: when it was kept
+  let quickT = null, autoQuiet = false, autoReadAt = null, autoKind = null;   // autoKind: the page on screen, by its address              // autoQuiet: an auto-read page is being read; autoReadAt: when it was kept
   $("quick-paste").addEventListener("input", () => {
     const q = $("quick-paste"), text = q.value;
     if (!text.trim()) return;
@@ -954,7 +954,8 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     if (d.type === "frp-auto-hello") { autoOn = true; autoVersion = d.version || 1; document.body.classList.add("auto"); $("auto-off").hidden = true; $("auto-on").hidden = false; showAuto(); render(false); return; }
     if (d.type !== "frp-auto-page" || typeof d.text !== "string" || !d.id) return;
     if (autoLog[d.id]) return;                                           // already handled in this tab: each flush resends them all
-    const at = d.at || Date.now(), kind = detectPage(d.text);
+    const at = d.at || Date.now(), seen = detectPage(d.text), base = d.where ? gamePath(d.where).split("?")[0] : "";
+    const kind = (base === "index.php" || base === "") && seen !== "home" && carriedPages(d.text, seen || "").includes("home") ? "home" : seen;
     autoLog[d.id] = { where: d.where, at, kind, text: d.text };          // kept for its copy link (this tab only)
     // Keep the 40 latest (300 with Debug on, for the debug file): texts are large and every change in the game makes a new one
     const ids = Object.keys(autoLog), keepN = U.debug ? 300 : 40;
@@ -969,11 +970,11 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     // Older than what's already read for this page (an old copy still in the userscript's store, a paste since): skip
     if ((S.readAt || {})[readKey(kind, d.text)] >= at) { autoLog[d.id].old = true; return; }
     const q = $("quick-paste"); q.value = d.text.slice(0, 5e6);
-    autoQuiet = true; autoReadAt = at; q.dispatchEvent(new Event("input"));
+    autoQuiet = true; autoReadAt = at; autoKind = kind; q.dispatchEvent(new Event("input"));
     // What came of it, for the debug file: the read message, or that nothing could be read
     autoLog[d.id].result = autoQuiet === "failed" ? "read nothing" : $("quick-msg").innerText.replace(/\s*Undo\s*$/, "").trim() || "read";
     if (autoQuiet === "failed") autoLog[d.id].kind = null;
-    autoQuiet = false; autoReadAt = null;
+    autoQuiet = false; autoReadAt = null; autoKind = null;
     if (HERE && d.where && gamePath(d.where) === HERE.path) renderHere();     // the page you're on just came in
   });
   $("auto-on").addEventListener("click", e => {
@@ -998,7 +999,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     pasteStop();
     $("paste-clear").hidden = !text.trim();
     if (!text.trim()) return;
-    const kind = detectPage(text);
+    const kind = (autoQuiet && autoKind) || detectPage(text);
     const before = JSON.stringify(S);                                    // for Undo
     // Any page copied with the top bar carries your silver: keep the newest
     const cash = parseSilver(text);
@@ -1150,12 +1151,16 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
         if (!known) msg = warn("That item page couldn't be read: its name wasn't found.");
         else {
           if (r.mastery != null && S.mastery) S.mastery.items[r.name] = r.mastery;
-          if (r.onHand != null) {
-            const inv = S.inventory || (S.inventory = { items: {}, cap: null, at: Date.now() });
-            inv.items[r.name] = { ...(inv.items[r.name] || {}), count: r.onHand, atMax: !!inv.cap && r.onHand >= inv.cap };
-          }
+          // Its own count, plus what you have of its recipe's parts and of what it goes into (names the planner knows)
+          const inv = S.inventory || (S.inventory = { items: {}, cap: null, at: Date.now() }), known = n => n in (window.ITEMS || {});
+          const counts = {};
+          if (r.onHand != null) counts[r.name] = r.onHand;
+          for (const pt of r.parts) { const n = pt.names.find(known); if (n) counts[n] = pt.have; }
+          for (const u of r.uses) if (known(u.name)) counts[u.name] = u.have;
+          for (const [n, c] of Object.entries(counts)) inv.items[n] = { ...(inv.items[n] || {}), count: c, atMax: !!inv.cap && c >= inv.cap };
+          const others = Object.keys(counts).length - (r.onHand != null ? 1 : 0);
           done = true;
-          msg = `<div class="note" style="border-color:var(--good)">Read ${esc(r.name)}: ${r.onHand != null ? `${fmt(r.onHand)} on hand` : ""}${r.mastery != null ? `${r.onHand != null ? ", " : ""}mastery ${fmt(r.mastery)}` : ""}.</div>`;
+          msg = `<div class="note" style="border-color:var(--good)">Read ${esc(r.name)}: ${r.onHand != null ? `${fmt(r.onHand)} on hand` : ""}${r.mastery != null ? `${r.onHand != null ? ", " : ""}mastery ${fmt(r.mastery)}` : ""}${others ? `, and what you have of ${fmt(others)} related items` : ""}.</div>`;
         }
       } else if (kind === "workshop") {
         // What you have of everything the Workshop lists (made things and their parts): counts only, the rest of the
@@ -2953,7 +2958,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       for (const n of qNeeds.filter(n => n.item === crop).sort((a, b) => a.step - b.step)) {
         if (seenQ.has(n.name)) continue;
         seenQ.add(n.name);
-        jobs.push({ hours: n.miss / x.perHour, w: n.main ? 1.5 : 1, qty: n.miss, name: esc(n.name), tag: [n.main ? "main" : "", n.step ? `${n.step} ahead` : ""].filter(Boolean).join(", ") });
+        jobs.push({ hours: n.miss / x.perHour, w: n.main ? 1.5 : 1, qty: n.miss, name: esc(n.name), quest: true, tag: [n.main ? "main" : "", n.step ? `${n.step} ahead` : ""].filter(Boolean).join(", ") });
       }
       // Masteries in your plan that wait on this crop (cooking, crafts)
       for (const j of jobsFromPlan) {
@@ -3004,8 +3009,11 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     if (!crops.length) { $("plant-list").innerHTML = `<p class="small muted">No crop feeds anything in your plan or quests right now.</p>`; $("mono-plant").innerHTML = monoLi("Plant now", "Nothing needs planting"); return; }
     $("plant-list").innerHTML = promote ? boostHtml + timedHtml : timedHtml + boostHtml;
     const mc = (promote ? boost[0] : timed[0]) || timed[0] || boost[0], mj = mc.jobs[0];
-    $("mono-plant").innerHTML = monoLi("Plant now", mc.base <= 5 ? `<b>Breakfast Boost ${esc(mc.crop)}</b> <span class="small muted">for ${mj.name}${tagHtml(mj)} · ${fmt(roundsFor(mc, mj))} harvests</span>`
-      : `<b>${esc(mc.crop)}</b> <span class="small muted">for ${mj.name}${tagHtml(mj)} · ${tm(mj.hours)}</span>`,
+    // Said in full: what to do, how much, and what it's for ("the quest …" or a mastery), with how many are still needed
+    const forJob = j => `for ${j.quest ? "the quest " : ""}${j.name}${tagHtml(j)} (${short(j.qty)} more)`;
+    $("mono-plant").innerHTML = monoLi("Plant now", mc.base <= 5
+      ? `Eat a <b>Breakfast Boost</b> and farm <b>${esc(mc.crop)}</b>: about ${fmt(roundsFor(mc, mj))} rounds of Plant All + Harvest All <span class="small muted">${forJob(mj)}</span>`
+      : `Plant <b>${esc(mc.crop)}</b> <span class="small muted">${forJob(mj)} · ${tm(mj.hours)}</span>`,
       mc.jobs.length > 1 ? `Also feeds:<ul>${mc.jobs.slice(1, 8).map(j => `<li>${j.name}${tagHtml(j)}: ${short(j.qty)}</li>`).join("")}</ul>` : "");
   }
 

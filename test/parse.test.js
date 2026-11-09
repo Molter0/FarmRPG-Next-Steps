@@ -374,11 +374,11 @@ console.log("parse tests passed");
   const copy = ["[Back](https://farmrpg.com/x)", "Item Mastery", "[Back](https://farmrpg.com/x)", "Steel", ...list, "Heavier than feathers", " Item Details",
     "* My Inventory ", "1,234 on hand", "1,234", "* Mastery Progress ", "456,789 / 1,000,000 Progress", "Tier V", " Crafting Recipe"].join(nl);
   assert.strictEqual(detectPage(copy), "item");
-  assert.deepStrictEqual(parseItemPage(copy), { name: "Steel", onHand: 1234, mastery: 456789 });
+  assert.deepStrictEqual(parseItemPage(copy), { name: "Steel", onHand: 1234, mastery: 456789, parts: [], uses: [] });
   const plain = ["Back", "Item Mastery", "Back", "Board", ...list.map(l => l.replace(/^\* /, "")), "Item Details", "My Inventory", "9,850 on hand", "9,850",
     "Mastery Progress", "11,910,274 / ∞ Progress", "Complete!"].join(nl);
   assert.strictEqual(detectPage(plain), "item");
-  assert.deepStrictEqual(parseItemPage(plain), { name: "Board", onHand: 9850, mastery: 11910274 });
+  assert.deepStrictEqual(parseItemPage(plain), { name: "Board", onHand: 9850, mastery: 11910274, parts: [], uses: [] });
   assert.strictEqual(detectPage(list.join(nl)), "mastery");                         // the list on its own is still the Mastery page
 }
 
@@ -432,4 +432,30 @@ console.log("parse tests passed");
   assert.deepStrictEqual(parseHome(plain).tower, { ak: 26, level: 117 });
   // A page opened from Home carries it: read quietly along with that page
   assert.ok(carriedPages(["Items that you can craft are below.", plain].join(nl), "workshop").includes("home"));
+}
+
+// Headings as auto-read sees them: in capitals ("THE TOWER", "MY SKILLS")
+{
+  const { detectPage, parseHome } = require("../parse.js"), nl = "\n";
+  const t = ["THE TOWER", "Unused Points: 26", " Level 117", "MY SKILLS", "Farming", "Level 99", "Crafting", "Level 99", "PERKS, MASTERY & MORE", "Unlock Perks", "Unused Points: 9"].join(nl);
+  assert.strictEqual(detectPage(t), "home");
+  assert.deepStrictEqual(parseHome(t), { skills: { Farming: 99, Crafting: 99 }, tower: { ak: 26, level: 117 }, perkPoints: 9 });
+}
+
+// An item page's Crafting Recipe (what you have of each part) and Crafting Use (what you have of what it goes into),
+// in a copy with links and as auto-read's plain text (made-up numbers)
+{
+  const { parseItemPage } = require("../parse.js"), nl = "\n";
+  const copy = ["[Back](https://farmrpg.com/x)", "Scissors", " Item Details", "* My Inventory ", "21 on hand", "* Mastery Progress ", "9,831 / 10,000 Progress",
+    " Crafting Recipe", " The following items are required to craft Scissors. If the item name is in red, you don't have enough of this item.",
+    "* [Wood ](https://farmrpg.com/item.php?id=1)", "[Chopped from trees](https://farmrpg.com/item.php?id=1)", "[1,160 / 1](https://farmrpg.com/item.php?id=1)",
+    "* [Steel ](https://farmrpg.com/item.php?id=2)", "[Heavier than feathers](https://farmrpg.com/item.php?id=2)", "[0 / 2](https://farmrpg.com/item.php?id=2)",
+    " Crafting Use", "Scissors is required to craft any of the following items.",
+    "* [Rucksack ](https://farmrpg.com/item.php?id=3)", "[8x Leather](https://farmrpg.com/item.php?id=3)", "[1x Scissors](https://farmrpg.com/item.php?id=3)", "[142 / 5,626](https://farmrpg.com/item.php?id=3)",
+    " Locksmith Opens", "* [Large Chest 02 ](https://x)", "[Useful]( https://x)", "[2,943](https://x)"].join(nl);
+  const r = parseItemPage(copy);
+  assert.deepStrictEqual(r.parts.map(p => [p.names[0], p.have, p.need]), [["Wood", 1160, 1], ["Steel", 0, 2]]);
+  assert.deepStrictEqual(r.uses, [{ name: "Rucksack", have: 142 }]);
+  const plain = copy.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/^\s*\* ?/gm, "");
+  assert.deepStrictEqual(parseItemPage(plain).parts.map(p => [p.names[0], p.have]), [["Wood", 1160], ["Steel", 0]]);
 }
