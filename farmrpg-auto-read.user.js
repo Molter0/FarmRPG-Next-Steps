@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FarmRPG Next Steps: auto-read
 // @namespace    farmrpg-next-steps
-// @version      1.1.0
+// @version      1.2.0
 // @updateURL    https://molter0.github.io/FarmRPG-Next-Steps/farmrpg-auto-read.user.js
 // @downloadURL  https://molter0.github.io/FarmRPG-Next-Steps/farmrpg-auto-read.user.js
 // @description  Hands the text of each FarmRPG page you open to the FarmRPG Next Steps planner, so you don't have to copy and paste. Read-only: it loads nothing from FarmRPG, clicks nothing and changes nothing on the game's pages.
@@ -11,6 +11,7 @@
 // @match        http://localhost:5174/*
 // @grant        GM_getValue
 // @grant        GM_setValue
+// @grant        GM_deleteValue
 // @grant        GM_addValueChangeListener
 // @run-at       document-idle
 // @noframes
@@ -21,15 +22,17 @@
 //   (what Ctrl+A, Ctrl+C would copy). Nothing is sent anywhere and no request is made to the game.
 // - on the planner: pass the kept pages to it whenever its tab is in view. The planner reads each one once and skips
 //   pages it doesn't use.
+// Storage: each page's text under its own key ("page:" + address), plus a small index of the latest 30, so a click
+// writes only the page that changed; "here" is the page you're on now.
 (function () {
   "use strict";
-  const KEY = "pages", MAX = 30;            // the last 30 game pages, one per address
-  const HERE = "here";                       // the page you are on now: { where, at }
+  const INDEX = "index", MAX = 30, HERE = "here", PAGE = where => "page:" + where;
 
   if (/(^|\.)farmrpg\.com$/.test(location.hostname)) game();
   else if (document.querySelector('meta[name="frp-planner"]')) planner();
 
   function game() {
+    if (GM_getValue("pages", null)) GM_deleteValue("pages");          // 1.1 kept every page in one big value
     let last = "", obs = null, quiet = null, cap = null, here = null;
     const keep = () => {
       if (document.hidden) return;
@@ -39,9 +42,12 @@
       const text = document.body && document.body.innerText;
       if (!text || !text.trim() || text === last) return;
       last = text;
-      const pages = GM_getValue(KEY, []).filter(p => p.where !== where);
-      pages.push({ id: Date.now() + "-" + Math.random().toString(36).slice(2), where, at: Date.now(), text });
-      GM_setValue(KEY, pages.slice(-MAX));
+      const entry = { id: Date.now() + "-" + Math.random().toString(36).slice(2), where, at: Date.now() };
+      GM_setValue(PAGE(where), { ...entry, text });
+      const index = GM_getValue(INDEX, []).filter(p => p.where !== where);
+      index.push(entry);
+      while (index.length > MAX) GM_deleteValue(PAGE(index.shift().where));
+      GM_setValue(INDEX, index);                                         // last: the planner listens to this one
       console.info(`[FarmRPG auto-read] kept ${where} (${text.length} characters)`);
     };
     console.info("[FarmRPG auto-read] running on this tab");
@@ -64,17 +70,23 @@
   }
 
   function planner() {
-    const post = m => window.postMessage(m, location.origin);
+    const post = m => window.postMessage(m, location.origin), sent = new Set();
+    // Pages this tab hasn't been given yet, oldest first (the newest has the last word), only while you look at it
     const flush = () => {
-      if (document.hidden) return;                            // wait until you look at it
-      GM_getValue(KEY, []).slice().sort((a, b) => a.at - b.at)  // oldest first: the newest has the last word
-        .forEach(p => post({ type: "frp-auto-page", id: p.id, where: p.where, at: p.at, text: p.text }));
+      if (document.hidden) return;
+      for (const p of GM_getValue(INDEX, []).slice().sort((a, b) => a.at - b.at)) {
+        if (sent.has(p.id)) continue;
+        const page = GM_getValue(PAGE(p.where), null);
+        if (!page || page.id !== p.id) continue;                         // replaced since: the newer one comes next time
+        sent.add(p.id);
+        post({ type: "frp-auto-page", id: page.id, where: page.where, at: page.at, text: page.text });
+      }
     };
     const where = () => { const h = GM_getValue(HERE, null); if (h) post({ type: "frp-auto-here", where: h.where, at: h.at }); };
-    post({ type: "frp-auto-hello", version: 2 });
+    post({ type: "frp-auto-hello", version: 3 });
     where();
     GM_addValueChangeListener(HERE, where);                 // light: sent even while this tab is hidden
-    GM_addValueChangeListener(KEY, flush);
+    GM_addValueChangeListener(INDEX, flush);
     document.addEventListener("visibilitychange", flush);
     flush();
   }

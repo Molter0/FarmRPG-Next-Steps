@@ -528,11 +528,12 @@
       out[name] = { ready: /^(READY!?|Not Started)$/i.test(st) || !!left, left: left ? toInt(left[1]) : 0 };
     }
     // The Bank's figure: "Bank / Deposit your Silver / 2.5T" in a copy; auto-read's text can put it a line further on or
-    // write it out ("2,512,000,000", "2.5T Silver"). The first "Bank" entry followed by an amount within 4 lines.
+    // write it out ("2,512,000,000", "2.5T Silver"). The first "Bank" entry followed by an amount within 3 lines.
     const amountOf = l => { const m = l.match(/^([\d.,]+)\s*([KMBTQ]?)(?:\s*Silver)?$/i); return m && /\d/.test(m[1]) ? Math.round(parseFloat(m[1].replace(/,/g, "")) * ({ K: 1e3, M: 1e6, B: 1e9, T: 1e12, Q: 1e15 }[m[2].toUpperCase()] || 1)) : null; };
     for (let b = 0; b < lines.length; b++) {
       if (lines[b] !== "Bank") continue;
-      const v = lines.slice(b + 1, b + 5).map(amountOf).find(x => x != null);
+      // Within the Bank's own entry (its description, then the figure), and a balance, not a small count of something else
+      const v = lines.slice(b + 1, b + 4).map(amountOf).find(x => x != null && x >= 1000);
       if (v != null) { Object.defineProperty(out, "bank", { value: v, enumerable: false }); break; }
     }
     return out;
@@ -667,7 +668,8 @@
     if (/^\s*Market District\s*$/im.test(text) && /Borgen's District/i.test(text)) return "town";
     // Help Needed: its request headings and "Request from …" lines. The headings alone are the sidebar of a wide screen,
     // which every page carries (and auto-read hands over every page)
-    if (/Active Requests|Special Requests/i.test(text) && /^\s*[*•-]?\s*\[?(Request from |Available )/im.test(text)) return "quests";
+    // ("Available Sep 21 - Sep 30" on a special request: a date, so "Available Upgrades" elsewhere doesn't count)
+    if (/Active Requests|Special Requests/i.test(text) && /^\s*[*•-]?\s*\[?(Request from |Available [A-Z][a-z]{2,8}\.? \d)/im.test(text)) return "quests";
     return null;
   }
 

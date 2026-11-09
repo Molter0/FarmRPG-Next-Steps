@@ -400,3 +400,11 @@ console.log("parse tests passed");
     ...Array.from({ length: 6 }, (_, i) => [`Thing ${i}`, `${5000 + i} / 10,000 Progress`]).flat()].join(nl);
   assert.deepStrictEqual(parseMastery(list).skills, {});
 }
+
+// Help Needed by "Available" only with a date (a special request); the Town Bank figure only a balance in its own entry
+{
+  const { detectPage, parseTown } = require("../parse.js"), nl = "\n";
+  assert.notStrictEqual(detectPage(["Active Requests (5)", "Chicken Coop", "5,000 Eggs", "Available Upgrades", "Sprint Shoes"].join(nl)), "quests");
+  assert.strictEqual(detectPage(["Special Requests (1)", "Pumpkin Party", "Available Oct 1 - Oct 31", "READY!"].join(nl)), "quests");
+  assert.strictEqual(parseTown(["Bank", "Deposit your Silver", "Library", "12"].join(nl)).bank, undefined);
+}

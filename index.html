@@ -772,29 +772,29 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   <div id="debug-list"></div>
   <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
 </dialog>
-<script src="tools-menu.js?v=202611090848" defer></script>
-<script src="tower.js?v=202611090848"></script>
-<script src="parse.js?v=202611090848"></script>
-<script src="drops.js?v=202611090848"></script>
-<script src="reference.js?v=202611090848"></script>
-<script src="seasons.js?v=202611090848"></script>
-<script src="recipes.js?v=202611090848"></script>
-<script src="recipes-extra.js?v=202611090848"></script>
-<script src="items.js?v=202611090848"></script>
-<script src="upgrades.js?v=202611090848"></script>
-<script src="pets.js?v=202611090848"></script>
-<script src="savecode.js?v=202611090848"></script>
+<script src="tools-menu.js?v=202611090900" defer></script>
+<script src="tower.js?v=202611090900"></script>
+<script src="parse.js?v=202611090900"></script>
+<script src="drops.js?v=202611090900"></script>
+<script src="reference.js?v=202611090900"></script>
+<script src="seasons.js?v=202611090900"></script>
+<script src="recipes.js?v=202611090900"></script>
+<script src="recipes-extra.js?v=202611090900"></script>
+<script src="items.js?v=202611090900"></script>
+<script src="upgrades.js?v=202611090900"></script>
+<script src="pets.js?v=202611090900"></script>
+<script src="savecode.js?v=202611090900"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
-<script src="seeds.js?v=202611090848"></script>
-<script src="meals.js?v=202611090848"></script>
-<script src="ww.js?v=202611090848"></script>
-<script src="levels.js?v=202611090848"></script>
-<script src="quests.js?v=202611090848"></script>
-<script src="loot.js?v=202611090848"></script>
-<script src="trade.js?v=202611090848"></script>
-<script src="prices.js?v=202611090848"></script>
-<script src="npcs.js?v=202611090848"></script>
-<script src="engine.js?v=202611090848"></script>
+<script src="seeds.js?v=202611090900"></script>
+<script src="meals.js?v=202611090900"></script>
+<script src="ww.js?v=202611090900"></script>
+<script src="levels.js?v=202611090900"></script>
+<script src="quests.js?v=202611090900"></script>
+<script src="loot.js?v=202611090900"></script>
+<script src="trade.js?v=202611090900"></script>
+<script src="prices.js?v=202611090900"></script>
+<script src="npcs.js?v=202611090900"></script>
+<script src="engine.js?v=202611090900"></script>
 <script>
 (function () {
   const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parseWorkshop, parseItemPage, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
@@ -905,16 +905,17 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   // Pasting while the old text is still fading: drop the old text first so the two don't mix
   $("paste").addEventListener("paste", () => { if (pasteT.length) { pasteStop(); $("paste").value = ""; } });
   // Quick paste (header, every tab): runs the same reader as the Setup paste box, then shows the result next to itself
-  let quickT = null, autoQuiet = false;                                  // autoQuiet: an auto-read page is being read
+  let quickT = null, autoQuiet = false, autoReadAt = null;              // autoQuiet: an auto-read page is being read; autoReadAt: when it was kept
   $("quick-paste").addEventListener("input", () => {
     const q = $("quick-paste"), text = q.value;
     if (!text.trim()) return;
-    clearTimeout(quickT);
     const main = $("paste"); main.value = text; main.dispatchEvent(new Event("input"));
     const ok = $("paste-ok").classList.contains("show"), msg = $("status").innerHTML;
     q.value = "";
-    // Auto-read hands over every page: one it couldn't use stays quiet (Setup's auto-read line says "skipped")
+    // Auto-read hands over every page: one it couldn't use stays quiet (Setup's auto-read line says "skipped"), and the
+    // message already showing keeps its own timer to fade out
     if (autoQuiet && !ok) { autoQuiet = "failed"; main.value = ""; $("status").innerHTML = ""; $("paste-clear").hidden = true; return; }
+    clearTimeout(quickT);
     $("quick-ok").classList.toggle("show", ok);
     $("quick-msg").innerHTML = msg; $("quick-msg").classList.toggle("show", !!msg);              // what was read (or what went wrong)
     quickT = setTimeout(() => { $("quick-ok").classList.remove("show"); $("quick-msg").classList.remove("show"); }, /data-undo-paste/.test(msg) ? 30000 : ok ? 5000 : 10000);
@@ -929,16 +930,20 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   const getPage = (paste, open) => autoOn ? open : paste;
   try { autoSeen = JSON.parse(localStorage.getItem(AUTO_SEEN)) || []; } catch (e) {}
   const autoWhere = w => String(w || "a game page").replace(/^#!?\/?/, "").replace(/\?.*$/, "").replace(/\.php$/, "") || "home";
+  // One key per kind of page (one per item for item pages: each updates only its own item)
+  const readKey = (kind, text) => kind === "item" ? "item:" + ((parseItemPage(text) || {}).name || "") : kind;
+  let showAutoT = null;
+  const showAutoSoon = () => { clearTimeout(showAutoT); showAutoT = setTimeout(showAuto, 60); };   // a flush brings up to 30 pages at once
   const showAuto = () => {
     const hm = t => new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     const last = Object.values(autoLog).sort((a, b) => b.at - a.at).slice(0, 4);
     // Scripts before 1.1.0 say hello without a version and never say which page is open: no Here card, no Checklist ticks
     const old = autoVersion < 2 ? `<span class="bad">Your auto-read script is out of date:</span> <a href="farmrpg-auto-read.user.js">reinstall it</a> (then reload your FarmRPG tab) for the Here card and Checklist ticks. ` : "";
     // The page you're on (from scripts 1.1.0 on): says whether the Here card has advice for it, to tell "not working" from "nothing to say"
-    const here = autoVersion >= 2 ? (HERE ? `You're on <b>${esc(autoWhere(HERE.path))}</b>: ${herePage(HERE.path) ? "advice in the Here card above every tab" : "no Here advice for this page"}. `
+    const here = autoVersion >= 2 ? (HERE ? `You're on <b>${esc(autoWhere(HERE.path))}</b>: ${U.hereOff ? "the Here card is off (App settings)" : !$("here").hidden ? "advice in the Here card above every tab" : "no Here advice for this page"}. `
       : "Open any game page to see the Here card. ") : "";
     $("auto-on").innerHTML = `<b class="ok">✓</b> Auto-read is on. ` + old + here + (last.length
-      ? "Latest game pages: " + last.map(p => `${esc(autoWhere(p.where))} ${hm(p.at)} → ${p.kind ? esc(PAGE_NAME[p.kind] || p.kind) : `<span class="muted">skipped (nothing the planner reads)</span>`} <a href="#" data-auto-copy="${esc(p.id)}" title="Copy the text that came in, to report a page that reads wrong">copy</a>`).join(" · ")
+      ? "Latest game pages: " + last.map(p => `${esc(autoWhere(p.where))} ${hm(p.at)} → ${p.old ? `<span class="muted">older than what's read already</span>` : p.kind ? esc(PAGE_NAME[p.kind] || p.kind) : `<span class="muted">skipped (nothing the planner reads)</span>`} <a href="#" data-auto-copy="${esc(p.id)}" title="Copy the text that came in, to report a page that reads wrong">copy</a>`).join(" · ")
       : "No game pages have come in yet: open one in FarmRPG, wait 2 seconds, then come back to this tab.");
   };
   window.addEventListener("message", e => {
@@ -947,20 +952,26 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     if (d.type === "frp-auto-here" && d.where) { hereSeen(d.where, d.at || Date.now()); return; }
     if (d.type === "frp-auto-hello") { autoOn = true; autoVersion = d.version || 1; document.body.classList.add("auto"); $("auto-off").hidden = true; $("auto-on").hidden = false; showAuto(); render(false); return; }
     if (d.type !== "frp-auto-page" || typeof d.text !== "string" || !d.id) return;
-    const kind = detectPage(d.text);
-    autoLog[d.id] = { where: d.where, at: d.at || Date.now(), kind, text: d.text };   // kept for its copy link (this tab only)
+    if (autoLog[d.id]) return;                                           // already handled in this tab: each flush resends them all
+    const at = d.at || Date.now(), kind = detectPage(d.text);
+    autoLog[d.id] = { where: d.where, at, kind, text: d.text };          // kept for its copy link (this tab only)
+    // Keep the 40 latest: texts are large (chat included) and every change in the game makes a new one
+    const ids = Object.keys(autoLog);
+    if (ids.length > 40) ids.sort((a, b) => autoLog[a].at - autoLog[b].at).slice(0, ids.length - 40).forEach(k => delete autoLog[k]);
     if (d.where) { const t = screenTitleOf(d.text); if (t) titleAt[gamePath(d.where)] = t; }
-    if (d.where && noteVisit(d.where, d.at || Date.now(), kind)) { save(); renderChecklist(); }
-    if (HERE && d.where && gamePath(d.where) === HERE.path) renderHere();     // the page you're on just came in
-    showAuto();
+    if (d.where && noteVisit(d.where, at, kind)) { save(); renderChecklist(); }
+    showAutoSoon();
     if (autoSeen.includes(d.id)) return;
     autoSeen = [...autoSeen, d.id].slice(-200);
     try { localStorage.setItem(AUTO_SEEN, JSON.stringify(autoSeen)); } catch (err) {}
     if (!kind) return;                                                   // the home page, chat, a shop…: not for us
+    // Older than what's already read for this page (an old copy still in the userscript's store, a paste since): skip
+    if ((S.readAt || {})[readKey(kind, d.text)] >= at) { autoLog[d.id].old = true; return; }
     const q = $("quick-paste"); q.value = d.text.slice(0, 5e6);
-    autoQuiet = true; q.dispatchEvent(new Event("input"));
-    if (autoQuiet === "failed") { autoLog[d.id].kind = null; showAuto(); }
-    autoQuiet = false;
+    autoQuiet = true; autoReadAt = at; q.dispatchEvent(new Event("input"));
+    if (autoQuiet === "failed") autoLog[d.id].kind = null;
+    autoQuiet = false; autoReadAt = null;
+    if (HERE && d.where && gamePath(d.where) === HERE.path) renderHere();     // the page you're on just came in
   });
   $("auto-on").addEventListener("click", e => {
     const a = e.target.closest("[data-auto-copy]"), p = a && autoLog[a.dataset.autoCopy];
@@ -983,12 +994,19 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
       let msg = "", done = false;
       if (kind === "mastery") {
         const r = parseMastery(text);
-        const n = Object.keys(r.items).length;
-        if (!n) msg = warn("No mastery lines were found. Open every tier on the Mastery Progress page, then copy again.");
+        const n = Object.keys(r.items).length, was = S.mastery || {};
+        // Skill levels never go down in the game: a read can only raise them (a misread low level can't stick)
+        const skills = { ...(was.skills || {}) };
+        for (const [k, v] of Object.entries(r.skills)) skills[k] = Math.max(v, skills[k] || 0);
+        if (!n && S.mastery && (Object.keys(r.skills).length || r.tower)) {
+          // Home: "My skills" and the Tower block, no mastery list. Update those, keep the list
+          S.mastery = { ...S.mastery, skills, tower: r.tower || was.tower || null, totals: r.totals || was.totals || null };
+          done = true;
+          msg = `<div class="note" style="border-color:var(--good)">Read your skill levels${r.tower ? ` and Tower (level ${fmt(r.tower.level)}, ${fmt(r.tower.ak)} AK)` : ""}.</div>`;
+        } else if (!n) msg = warn("No mastery lines were found. Open every tier on the Mastery Progress page, then copy again.");
         else {
           // The list alone (no Home blocks: skills, Tower, totals) keeps what an earlier read found for those
-          const was = S.mastery || {};
-          S.mastery = { items: r.items, tower: r.tower || was.tower || null, skills: Object.keys(r.skills).length ? r.skills : was.skills || {}, totals: r.totals || was.totals || null, at: Date.now() };
+          S.mastery = { items: r.items, tower: r.tower || was.tower || null, skills, totals: r.totals || was.totals || null, at: Date.now() };
           S.changes = []; S.stepsDone = [];                                                  // real numbers replace any Done ticks
           S.manual = {};
           done = true;                                                     // read: clear the box even if a warning follows
@@ -1186,6 +1204,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
         else {
           // The page replaces every quest, personal requests included (a player has 3-4 of those at most)
           S.quests = all; S.questsAt = Date.now(); S.changes = []; S.stepsDone = [];
+          if (all.some(q => q.section === "special")) S.specialsSeen = gameDay(Date.now()).slice(0, 7);   // this month's specials are out
           const cc = parseCommunity(text); if (cc) S.comm = { ...cc, day: gameDay(Date.now()) };   // the Checklist's Community Center lines
           pruneRequests(all, new Set([...text.matchAll(/quest\.php\?id=(\d+)/g)].map(m => m[1])));
         }
@@ -1197,6 +1216,8 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     // Read the other pages the copy carries first, quietly; the pasted page then has the last word and the only message
     for (const k of carriedPages(text, kind)) read(k);
     let { msg, done } = read(kind);
+    // When this page's data was taken (an auto-read page: when the game showed it), so an older copy never overwrites it
+    if ((done || !msg) && kind) S.readAt = { ...(S.readAt || {}), [readKey(kind, text)]: autoReadAt || Date.now() };
     const ok = !msg || done;
     if (JSON.stringify(S) !== before) {
       pushUndo(PAGE_NAME[kind] || "a page", before);
@@ -3535,7 +3556,8 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   const checkAuto = id => {
     if (visitDone(id)) return true;
     if (id === "phr") return today({ day: S.questsAt && gameDay(S.questsAt) }) && !(S.quests || []).some(q => q.section === "personal");
-    if (id === "special") return !!S.questsAt && gameDay(S.questsAt).slice(0, 7) === gameDay(Date.now()).slice(0, 7) && !(S.quests || []).some(q => q.section === "special");
+    // Done only once this month's specials were seen and none are left (before they come out, there's nothing to finish yet)
+    if (id === "special") { const m = gameDay(Date.now()).slice(0, 7); return S.specialsSeen === m && !!S.questsAt && gameDay(S.questsAt).slice(0, 7) === m && !(S.quests || []).some(q => q.section === "special"); }
     if (id === "bank") { const b = bankNeed(); return b.have != null && b.have >= b.need; }
     if (id === "farm") return today(S.farmToday) && !S.farmToday.todo.length;
     if (id === "slaughter" && S.pigs) { const t = pigToday(); return !(t && t.slaughter); }   // not a pig day, or already sent
@@ -3631,9 +3653,9 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   function hereSeen(where, at) {
     const changed = noteVisit(where, at);
     if (!HERE || at >= HERE.at) HERE = { path: gamePath(where), at };
-    showAuto();
     if (changed) { save(); renderChecklist(); }
     renderHere();
+    showAutoSoon();
   }
   // Opened today (or this month): matches the path with its query, or any query when the Checklist's path has none
   const visited = (path, month) => {
