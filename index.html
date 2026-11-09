@@ -772,29 +772,29 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   <div id="debug-list"></div>
   <p class="row" style="justify-content:space-between;margin:10px 0 0"><button type="button" id="debug-copy">Copy</button> <button type="button" id="debug-close">OK</button></p>
 </dialog>
-<script src="tools-menu.js?v=202611091006" defer></script>
-<script src="tower.js?v=202611091006"></script>
-<script src="parse.js?v=202611091006"></script>
-<script src="drops.js?v=202611091006"></script>
-<script src="reference.js?v=202611091006"></script>
-<script src="seasons.js?v=202611091006"></script>
-<script src="recipes.js?v=202611091006"></script>
-<script src="recipes-extra.js?v=202611091006"></script>
-<script src="items.js?v=202611091006"></script>
-<script src="upgrades.js?v=202611091006"></script>
-<script src="pets.js?v=202611091006"></script>
-<script src="savecode.js?v=202611091006"></script>
+<script src="tools-menu.js?v=202611091028" defer></script>
+<script src="tower.js?v=202611091028"></script>
+<script src="parse.js?v=202611091028"></script>
+<script src="drops.js?v=202611091028"></script>
+<script src="reference.js?v=202611091028"></script>
+<script src="seasons.js?v=202611091028"></script>
+<script src="recipes.js?v=202611091028"></script>
+<script src="recipes-extra.js?v=202611091028"></script>
+<script src="items.js?v=202611091028"></script>
+<script src="upgrades.js?v=202611091028"></script>
+<script src="pets.js?v=202611091028"></script>
+<script src="savecode.js?v=202611091028"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
-<script src="seeds.js?v=202611091006"></script>
-<script src="meals.js?v=202611091006"></script>
-<script src="ww.js?v=202611091006"></script>
-<script src="levels.js?v=202611091006"></script>
-<script src="quests.js?v=202611091006"></script>
-<script src="loot.js?v=202611091006"></script>
-<script src="trade.js?v=202611091006"></script>
-<script src="prices.js?v=202611091006"></script>
-<script src="npcs.js?v=202611091006"></script>
-<script src="engine.js?v=202611091006"></script>
+<script src="seeds.js?v=202611091028"></script>
+<script src="meals.js?v=202611091028"></script>
+<script src="ww.js?v=202611091028"></script>
+<script src="levels.js?v=202611091028"></script>
+<script src="quests.js?v=202611091028"></script>
+<script src="loot.js?v=202611091028"></script>
+<script src="trade.js?v=202611091028"></script>
+<script src="prices.js?v=202611091028"></script>
+<script src="npcs.js?v=202611091028"></script>
+<script src="engine.js?v=202611091028"></script>
 <script>
 (function () {
   const { parseMastery, parseInventory, parseOrchard, parseFarm, parseQuests, parsePerks, perkSettings, detectPage, parseSilver, parseFriends, parseBuilding, parseMarket, marketPrices, parseRequest, parseSteak, parseExploreInfo, parsePets, parseTemple, parseCraftworks, parseWorkshop, parseItemPage, parseHome, parsePetShop, parseBank, parsePigPen, parseCommunity, parseTown, parseFarmToday, carriedPages, towerPlan, akPlan, makeCoster, seasonNote, placesUnlocked, DEFAULT_PERKS } = window.FRP;
@@ -1676,6 +1676,8 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
   const PLACE_LEVEL = { "Ember Lagoon": ["Exploring", 60], "Whispering Creek": ["Exploring", 70], "Jundland Desert": ["Exploring", 80],
     "Gary's Crushroom": ["Exploring", 90], "Lake Minerva": ["Fishing", 60], "Large Island": ["Fishing", 70], "Pirate's Cove": ["Fishing", 80],
     "Glacier Lake": ["Fishing", 90] };
+  const PLACE_KEY_QUEST = { "Gary's Crushroom": /^Fitness Friends Fit Forever\b/, "Large Island": /^Islands are Hard to Catch\b/,
+    "Pirate's Cove": /^Intruders Beware\b/, "Glacier Lake": /^(A Wall in the Way|The Fall of Water)\b/, "Whispering Creek": /^Parts Unknown\b/ };
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const monthText = ms => ms.map(m => MONTHS[m - 1]).join("–");
   function where(p) {
@@ -1698,6 +1700,12 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     // Places also need a skill level (knowledge/mechanics/locked-places.md): below it, they're closed whatever the items say
     const sk = p.skills || {};
     for (const [loc, [skill, lv]] of Object.entries(PLACE_LEVEL)) if (sk[skill] != null && sk[skill] < lv) auto[loc] = false;
+    // A place behind a key quest stays closed while that quest is still open, whatever items you have from it (pets, the
+    // well, trades): knowledge/mechanics/locked-places.md. Only places with no other way in.
+    for (const [loc, re] of Object.entries(PLACE_KEY_QUEST)) if ((S.quests || []).some(q => re.test(q.name))) {
+      auto[loc] = false;
+      if (S.placesSeen && S.placesSeen[loc]) { delete S.placesSeen[loc]; save(); }
+    }
     const places = {};
     for (const loc of Object.keys(DROPS.locs)) places[loc] = S.places[loc] ?? auto[loc];
     // Trip places cost less: a 50% trip discount makes their costs count at half
@@ -3760,16 +3768,40 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     }
     return { total, names };
   }
+  // An item's quest needs split: what each open quest needs now, and what its next steps (up to 5 ahead) need later
+  function questNeedSplit(item) {
+    const hidden = new Set(S.questHidden || []), out = { now: 0, nowNames: [], later: 0, laterNames: [] };
+    for (const q of S.quests || []) {
+      if (hidden.has(q.name)) continue;
+      for (let name = q.name, step = 0; name && step <= 5; step++) {
+        const d = QUESTS.quests[name]; if (!d) break;
+        const n = d.need.filter(([i]) => i === item).reduce((t, [, k]) => t + k, 0);
+        if (n && !step) { out.now += n; out.nowNames.push(esc(name)); }
+        else if (n) { out.later += n; if (!out.laterNames.some(x => x.startsWith(esc(name)))) out.laterNames.push(`${esc(name)} (${step} ahead)`); }
+        name = d.next && d.next[0];
+      }
+    }
+    return out;
+  }
   // What to do with an item: keep it for quests, toss it for something a quest needs, craft it on, gift or sell the rest.
   // Only advice: the game page already shows the count and what it's used in.
   function itemAdvice(item, p) {
     const onHand = O ? O.onHand : {}, have = onHand[item] || 0, out = [];
-    const q = questNeedOf(item), W2 = (window.WW && WW.want) || {};
-    if (q.total) {
-      const miss = q.total - have;
+    const q = questNeedOf(item), qs = questNeedSplit(item), W2 = (window.WW && WW.want) || {}, cap = O && O.cap !== Infinity ? O.cap : null;
+    // Now: what the open quests ask for. Later: their next steps, which you may not be able to hold yet
+    if (qs.now) {
+      const miss = qs.now - have;
       out.push(monoLi("Quests", miss > 0
-        ? `<b>Short ${fmt(miss)}</b> for ${q.names.join(", ")}${itemEffort(item, miss)}`
-        : `<b>Keep ${fmt(q.total)}</b> for ${q.names.join(", ")}`));
+        ? `<b>Short ${fmt(miss)}</b> for ${qs.nowNames.join(", ")}${itemEffort(item, miss)}`
+        : `<b>Keep ${fmt(qs.now)}</b> for ${qs.nowNames.join(", ")}`));
+    }
+    if (qs.later) {
+      const room = cap != null ? Math.max(0, cap - Math.max(have, qs.now)) : null, over = room != null && qs.later > room;
+      out.push(monoLi("Later in the chain", `${fmt(qs.later)} more for ${qs.laterNames.join(", ")}${over
+        ? ` <span class="small muted">· more than you can hold (room for ${fmt(room)} under your cap of ${fmt(cap)}): make them when that step comes up</span>` : ""}`));
+    }
+    if (qs.now) {
+      const miss = qs.now - have;
       const ww = miss > 0 && (W2[item] || []).map(([inp, ch]) => ({ inp, ch, have: onHand[inp] || 0 })).filter(o => o.have > 0)
         .sort((a, b) => b.ch - a.ch)[0];
       if (ww) out.push(monoLi("Wishing Well", `Toss <b>${esc(ww.inp)}</b> for it: ${ww.ch}% a toss, you have ${short(ww.have)}`));
@@ -3827,7 +3859,7 @@ main.grid-on .card.mono > .mono-list > li:last-child { border-bottom: 1px solid 
     const wants = [];
     for (const item of questItems()) {
       if (!recipe(item)) continue;
-      const q = questNeedOf(item), miss = q.total - (onHand[item] || 0);
+      const q = questNeedOf(item), miss = Math.min(q.total, O && O.cap !== Infinity ? O.cap : Infinity) - (onHand[item] || 0);   // never more than you can hold
       if (miss >= 1) wants.push({ item, short: miss, why: q.names });
     }
     const now = wants.map(w => ({ ...w, n: Math.min(w.short, makes(w.item)) })).filter(w => w.n >= 1).sort((a, b) => b.n - a.n);
