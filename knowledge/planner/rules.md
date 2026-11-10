@@ -134,7 +134,7 @@ generated: { by: claude-code/opus-5.5, at: 2026-09-30T12:00:00Z }
   into reference.js by tools/build-reference.js (run by bump-version before each push). Entries start folded; search
   covers every entry's text and marks matches; a heading ending "(spoiler)" folds its section behind a second fold.[^player]
 - Notes players read (mechanics, and data notes in Reference) say what's true now: no "X is not one" corrections of
-  earlier mistakes, no built or dropped proposals, no "not modelled yet" app status. Ideas go in plans/.[^player]
+  earlier mistakes, no built or dropped proposals, no "not modelled yet" app status. Ideas go in docs/.[^player]
 - Setup's page list: frequent pages always show (Mastery, Inventory, Help Needed, requests, silver, Steak Market);
   infrequent ones (farm, Orchard, perks, Farm Supply, friendship, Pig Pen, Temple, Bank) sit in a fold that opens only
   when one is missing or over a month old (a never-pasted Pig Pen doesn't count: not everyone keeps pigs).[^player]

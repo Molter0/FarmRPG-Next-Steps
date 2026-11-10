@@ -1,7 +1,7 @@
 # Overnight plan (2026-10-21)
 
 Everything stays local (commits only); nothing is pushed until the player says "push". Tests run after each piece.
-Questions and problems found along the way go in plans/questions-for-morning.md.
+Questions and problems found along the way go in docs/questions-for-morning.md.
 
 ## 1. Read everything a paste carries
 A copy holds the page opened before it first (Town list, farm list, Pig Pen, Temple), then the page on screen.
