@@ -72,8 +72,6 @@ with a source.
 - Anywhere: Ctrl+V outside a text box reads a page; ▾ folds a card (remembered); keys 1–7 switch tabs; phones get a bottom tab bar.
 
 ## Roadmap
-- Shared Truffle prices: one player's Steak Market paste gives everyone today's prices (needs a free Cloudflare Worker + KV;
-  the Truffle prompt then says the two prices are shared). Optional Reddit hint for notable days.
 - Place Info page paste: its "Things found here" list (on hand / cap) also updates those items' inventory counts,
   like the All Pet Items paste.
 - Animal buildings (Chicken Coop, Pasture, Pig Pen): read their pages, animal prices included, so Slow grinds' Maxed line

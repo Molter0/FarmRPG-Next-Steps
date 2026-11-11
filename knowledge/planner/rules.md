@@ -200,8 +200,7 @@ generated: { by: claude-code/opus-5.5, at: 2026-09-30T12:00:00Z }
   with the same name and townsperson replaces the old one.[^player]
 - Optional pastes are never prompted for, with one exception: players with Truffles in their inventory are reminded each day
   (until they paste it after reset) to paste the Steak Market for the sell check. Players without Truffles can't see the
-  Truffle market (it appears after "The Smell of a Fun Guy"), so they get no reminder. If shared Truffle prices are built,
-  the same prompt becomes the way to share, and its wording must say the two Truffle prices are shared.[^player]
+  Truffle market (it appears after "The Smell of a Fun Guy"), so they get no reminder.[^player]
 - Saved production carries its own unit, as the game states it: `{ n: 54210, per: "day" }` for daily drops (Antler,
   Eggs, Milk, Trout…), `{ n: 18002, per: "hour" }` for the rest. The math converts to per hour in one place
   (`ratesPerHour` in engine.js); never store or quote a daily drop as an hourly rate.[^player]
